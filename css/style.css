@@ -1,0 +1,17 @@
+/* ...existing code... */
+:root{
+  --max-width: 900px;
+  --gap: 12px;
+  font-family: Arial, sans-serif;
+}
+body{
+  margin: 16px;
+  display:flex;
+  justify-content:center;
+}
+main{
+  max-width:var(--max-width);
+  width:100%;
+}
+nav a{ margin-right:8px; }
+/* ...existing code... */

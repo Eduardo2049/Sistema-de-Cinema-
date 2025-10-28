@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Salas — Projeto Cinema</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="../css/style.css">
+  </head>
+  <body class="p-4">
+    <div class="container">
+      <h1>Salas</h1>
+      <form id="sala-form" class="row g-2 mb-3">
+        <div class="col-md-6"><input name="name" class="form-control" placeholder="Nome da sala" required></div>
+        <div class="col-md-2"><input name="capacity" type="number" class="form-control" placeholder="Capacidade"></div>
+        <div class="col-md-2"><button class="btn btn-primary">Salvar</button></div>
+      </form>
+
+      <section id="salas-list"></section>
+      <a href="../index.html" class="btn btn-link mt-3">Voltar</a>
+    </div>
+
+    <script src="../js/app.js" defer></script>
+    <script src="../js/api/storage.js" defer></script>
+    <script src="../js/api/salasApi.js" defer></script>
+    <script src="../js/ui/salasUi.js" defer></script>
+    <script>
+      document.addEventListener('DOMContentLoaded', ()=>{
+        const form = document.getElementById('sala-form');
+        const container = document.getElementById('salas-list');
+        renderSalasList(container);
+        bindSalaForm(form, container);
+      });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" defer></script>
+  </body>
+</html>
