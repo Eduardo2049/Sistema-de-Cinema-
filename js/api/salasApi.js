@@ -1,5 +1,5 @@
 window.SalasAPI = {
-  key: 'cinema_rooms',
+  key: 'salas',
   add(room){
     const list = window.StorageAPI.getData(this.key);
     list.push(room);

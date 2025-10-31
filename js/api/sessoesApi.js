@@ -1,5 +1,5 @@
 window.SessoesAPI = {
-  key: 'cinema_sessions',
+  key: 'sessoes',
   add(session){
     const list = window.StorageAPI.getData(this.key);
     list.push(session);

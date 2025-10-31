@@ -8,7 +8,6 @@
     <link rel="stylesheet" href="../css/style.css">
   </head>
   <body class="d-flex flex-column min-vh-100">
-    <!-- Navbar (igual em todas as páginas) -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark border-bottom sticky-top">
       <div class="container-fluid">
         <a class="navbar-brand fw-bold" href="/">
@@ -37,15 +36,54 @@
           <div class="card mb-4">
             <div class="card-body">
               <h5 class="card-title">Adicionar Novo Filme</h5>
-              <form id="film-form" class="row g-2">
-                <div class="col-md-5">
-                  <input name="title" class="form-control" placeholder="Título" required>
+              <form id="film-form" class="row g-3">
+                <div class="col-md-6">
+                  <label for="title" class="form-label">Título *</label>
+                  <input name="title" id="title" class="form-control" placeholder="Digite o título do filme" required>
                 </div>
                 <div class="col-md-3">
-                  <input name="year" class="form-control" placeholder="Ano">
+                  <label for="genre" class="form-label">Gênero *</label>
+                  <select name="genre" id="genre" class="form-select" required>
+                    <option value="" disabled selected>Selecione</option>
+                    <option value="Ação">Ação</option>
+                    <option value="Aventura">Aventura</option>
+                    <option value="Comédia">Comédia</option>
+                    <option value="Drama">Drama</option>
+                    <option value="Terror">Terror</option>
+                    <option value="Suspense">Suspense</option>
+                    <option value="Ficção Científica">Ficção Científica</option>
+                    <option value="Romance">Romance</option>
+                    <option value="Animação">Animação</option>
+                    <option value="Documentário">Documentário</option>
+                  </select>
                 </div>
-                <div class="col-md-2">
-                  <button type="submit" class="btn btn-success w-100">Salvar</button>
+                <div class="col-md-3">
+                  <label for="rating" class="form-label">Classificação *</label>
+                  <select name="rating" id="rating" class="form-select" required>
+                    <option value="" disabled selected>Selecione</option>
+                    <option value="L">Livre</option>
+                    <option value="10">10 anos</option>
+                    <option value="12">12 anos</option>
+                    <option value="14">14 anos</option>
+                    <option value="16">16 anos</option>
+                    <option value="18">18 anos</option>
+                  </select>
+                </div>
+                <div class="col-md-12">
+                  <label for="description" class="form-label">Descrição *</label>
+                  <textarea name="description" id="description" class="form-control" rows="3" placeholder="Digite a sinopse do filme" required></textarea>
+                </div>
+                <div class="col-md-4">
+                  <label for="duration" class="form-label">Duração (minutos) *</label>
+                  <input name="duration" id="duration" type="number" class="form-control" placeholder="Ex: 120" min="1" required>
+                </div>
+                <div class="col-md-4">
+                  <label for="releaseDate" class="form-label">Data de Estreia *</label>
+                  <input name="releaseDate" id="releaseDate" type="date" class="form-control" required>
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label d-block">&nbsp;</label>
+                  <button type="submit" class="btn btn-success w-100">Salvar Filme</button>
                 </div>
               </form>
             </div>

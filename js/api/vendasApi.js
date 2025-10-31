@@ -1,5 +1,5 @@
 window.VendasAPI = {
-  key: 'cinema_sales',
+  key: 'ingressos',
   add(sale){
     const list = window.StorageAPI.getData(this.key);
     list.push(sale);
