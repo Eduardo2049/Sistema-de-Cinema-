@@ -1,7 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Layout } from './components/layout/Layout';
-import { HomePage } from './pages/HomePage';
-import { FilmsPage } from './pages/FilmsPage';
+import { HomePage } from './pages/HomePage/HomePage';
+import { FilmsPage } from './pages/FilmsPage/FilmsPage';
 import { RoomsPage } from './pages/RoomsPage';
 import { SessionsPage } from './pages/SessionsPage';
 import { SalesPage } from './pages/SalesPage';

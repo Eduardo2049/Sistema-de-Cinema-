@@ -1,40 +1,60 @@
 # 🎬 Projeto Cinema
 
-Sistema de gerenciamento de cinema desenvolvido com **React**, **TypeScript** e **Bootstrap**.
+Sistema de gerenciamento de cinema desenvolvido com **React**, **TypeScript**, **Bootstrap** e **SCSS**.
 
 ## 📋 Funcionalidades
 
-- **Filmes**: Cadastro e gerenciamento de filmes com informações detalhadas (título, descrição, gênero, classificação, duração, data de estreia)
-- **Salas**: Configuração de salas de cinema (nome, tipo, capacidade)
+- **Filmes**: Cadastro e gerenciamento de filmes com informações detalhadas
+- **Salas**: Configuração de salas de cinema  
 - **Sessões**: Criação de sessões de exibição vinculando filmes e salas
-- **Vendas**: Sistema de venda de ingressos com seleção de sessão e informações do cliente
+- **Vendas**: Sistema de venda de ingressos
 
 ## 🚀 Tecnologias Utilizadas
 
-- **React 18** - Biblioteca para construção de interfaces
+- **React 18** - Biblioteca para construção de interfaces com JSX/TSX
 - **TypeScript** - Superset JavaScript com tipagem estática
-- **Vite** - Build tool e dev server
+- **Vite** - Build tool e dev server moderno
 - **React Router** - Navegação entre páginas
 - **React Bootstrap** - Componentes UI baseados em Bootstrap 5
+- **SCSS/Sass** - Pré-processador CSS para estilos avançados
 - **LocalStorage** - Persistência de dados no navegador
 
 ## 📁 Estrutura do Projeto
 
 ```
 src/
-├── components/       # Componentes React reutilizáveis
-│   ├── layout/      # Navbar, Footer, Layout
-│   ├── films/       # FilmForm, FilmList
-│   ├── rooms/       # RoomForm, RoomList
-│   ├── sessions/    # SessionForm, SessionList
-│   └── sales/       # SalesForm, SalesList
-├── pages/           # Páginas da aplicação
-├── hooks/           # Custom hooks (useFilms, useRooms, etc)
-├── services/        # Serviços (storage)
-├── types/           # Definições TypeScript
-├── App.tsx          # Componente principal com rotas
-└── main.tsx         # Entry point
+├── components/          # Componentes React reutilizáveis
+│   ├── layout/         # Layout components
+│   │   ├── Navbar/
+│   │   │   ├── Navbar.tsx
+│   │   │   └── Navbar.scss
+│   │   ├── Footer/
+│   │   │   ├── Footer.tsx
+│   │   │   └── Footer.scss
+│   │   └── Layout.tsx
+│   ├── films/          # Film components
+│   ├── rooms/          # Room components
+│   ├── sessions/       # Session components
+│   └── sales/          # Sales components
+├── pages/              # Páginas da aplicação
+│   ├── HomePage/
+│   │   ├── HomePage.tsx
+│   │   └── HomePage.scss
+│   ├── FilmsPage/
+│   │   ├── FilmsPage.tsx
+│   │   └── FilmsPage.scss
+│   └── ... (outras páginas)
+├── hooks/              # Custom React hooks
+├── services/           # Business logic e storage
+├── types/              # TypeScript type definitions
+├── styles/             # Global styles
+├── App.tsx             # Root component com rotas
+└── main.tsx            # Entry point
 ```
+
+**Arquitetura**: Cada componente/página possui:
+- `.tsx` - Componente React com JSX/TSX embutido
+- `.scss` - Estilos SCSS separados
 
 ## 🛠️ Instalação e Execução
 
@@ -70,7 +90,7 @@ npm run preview
 
 ## 💾 Armazenamento de Dados
 
-Os dados são armazenados localmente no navegador usando **localStorage** com as seguintes chaves:
+Os dados são armazenados localmente usando **localStorage**:
 
 - `cinema_films` - Lista de filmes
 - `cinema_rooms` - Lista de salas
@@ -79,14 +99,19 @@ Os dados são armazenados localmente no navegador usando **localStorage** com as
 
 ## 📝 Como Usar
 
-1. **Cadastrar Filmes**: Acesse a página "Filmes" e preencha o formulário com as informações do filme
-2. **Configurar Salas**: Na página "Salas", cadastre as salas do cinema
-3. **Criar Sessões**: Em "Sessões", selecione um filme e uma sala para criar uma sessão de exibição
-4. **Vender Ingressos**: Na página "Vendas", selecione uma sessão e preencha os dados do cliente
+1. **Cadastrar Filmes**: Página "Filmes" → Preencher formulário
+2. **Configurar Salas**: Página "Salas" → Cadastrar salas do cinema
+3. **Criar Sessões**: Página "Sessões" → Vincular filme + sala + horário
+4. **Vender Ingressos**: Página "Vendas" → Selecionar sessão + dados cliente
 
 ## 🔄 Migração da Versão Anterior
 
-Este projeto foi completamente refatorado de HTML/JavaScript vanilla para React + TypeScript. As chaves de localStorage foram mantidas para compatibilidade com dados existentes.
+Projeto refatorado de HTML/JavaScript vanilla para React + TypeScript com:
+- Componentes modulares e reutilizáveis
+- Tipagem forte com TypeScript
+- Estilos SCSS organizados por componente
+- Navegação com React Router
+- Estado gerenciado com custom hooks
 
 ## 📄 Licença
 

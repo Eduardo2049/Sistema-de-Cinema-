@@ -3,7 +3,7 @@ import { Room } from '../../types';
 
 interface RoomListProps {
     rooms: Room[];
-    onRemove: (index: number) => void;
+    onRemove: (id: string) => void;
 }
 
 export const RoomList = ({ rooms, onRemove }: RoomListProps) => {
@@ -18,9 +18,13 @@ export const RoomList = ({ rooms, onRemove }: RoomListProps) => {
         );
     }
 
-    const handleRemove = (index: number, name: string) => {
+    const handleRemove = (id: string | undefined, name: string) => {
+        if (!id) {
+            alert('Erro: ID da sala não encontrado');
+            return;
+        }
         if (window.confirm(`Deseja realmente remover a sala "${name}"?`)) {
-            onRemove(index);
+            onRemove(id);
         }
     };
 
@@ -43,7 +47,7 @@ export const RoomList = ({ rooms, onRemove }: RoomListProps) => {
                                     variant="danger"
                                     size="sm"
                                     className="ms-2"
-                                    onClick={() => handleRemove(index, room.name)}
+                                    onClick={() => handleRemove(room.id, room.name)}
                                 >
                                     Remover
                                 </Button>

@@ -13,7 +13,7 @@ export const SalesForm = ({ onSubmit, sessions }: SalesFormProps) => {
     const preselectedSession = searchParams.get('sessao');
 
     const [formData, setFormData] = useState({
-        sessionId: preselectedSession ? parseInt(preselectedSession) : -1,
+        sessionId: preselectedSession || '',
         customerName: '',
         customerEmail: '',
         ticketQuantity: 1
@@ -21,20 +21,20 @@ export const SalesForm = ({ onSubmit, sessions }: SalesFormProps) => {
 
     useEffect(() => {
         if (preselectedSession) {
-            setFormData(prev => ({ ...prev, sessionId: parseInt(preselectedSession) }));
+            setFormData(prev => ({ ...prev, sessionId: preselectedSession }));
         }
     }, [preselectedSession]);
 
     const handleSubmit = (e: FormEvent) => {
         e.preventDefault();
 
-        if (formData.sessionId === -1 || !formData.customerName ||
+        if (!formData.sessionId || !formData.customerName ||
             !formData.customerEmail || !formData.ticketQuantity) {
             alert('Por favor, preencha todos os campos obrigatórios.');
             return;
         }
 
-        const session = sessions[formData.sessionId];
+        const session = sessions.find(s => s.id === formData.sessionId);
         if (!session) {
             alert('Sessão inválida.');
             return;
@@ -57,7 +57,7 @@ export const SalesForm = ({ onSubmit, sessions }: SalesFormProps) => {
 
         // Reset form
         setFormData({
-            sessionId: -1,
+            sessionId: '',
             customerName: '',
             customerEmail: '',
             ticketQuantity: 1
@@ -75,12 +75,12 @@ export const SalesForm = ({ onSubmit, sessions }: SalesFormProps) => {
                                 <Form.Label>Sessão *</Form.Label>
                                 <Form.Select
                                     value={formData.sessionId}
-                                    onChange={(e) => setFormData({ ...formData, sessionId: parseInt(e.target.value) })}
+                                    onChange={(e) => setFormData({ ...formData, sessionId: e.target.value })}
                                     required
                                 >
-                                    <option value="-1">Selecione uma sessão</option>
-                                    {sessions.map((session, index) => (
-                                        <option key={index} value={index}>
+                                    <option value="">Selecione uma sessão</option>
+                                    {sessions.map((session) => (
+                                        <option key={session.id} value={session.id}>
                                             {session.movieTitle} - {session.datetime} - Sala {session.roomName} - R$ {session.price.toFixed(2)}
                                         </option>
                                     ))}
@@ -132,8 +132,8 @@ export const SalesForm = ({ onSubmit, sessions }: SalesFormProps) => {
                                 <Form.Label>Total</Form.Label>
                                 <Form.Control
                                     type="text"
-                                    value={formData.sessionId >= 0 && sessions[formData.sessionId]
-                                        ? `R$ ${(sessions[formData.sessionId].price * formData.ticketQuantity).toFixed(2)}`
+                                    value={formData.sessionId && sessions.find(s => s.id === formData.sessionId)
+                                        ? `R$ ${(sessions.find(s => s.id === formData.sessionId)!.price * formData.ticketQuantity).toFixed(2)}`
                                         : 'R$ 0.00'}
                                     readOnly
                                 />
