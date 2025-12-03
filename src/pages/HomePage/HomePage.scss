@@ -1,0 +1,221 @@
+.home-page {
+    background: linear-gradient(to bottom, #f8f9fa 0%, #ffffff 100%);
+    min-height: calc(100vh - 56px); // Subtract navbar height
+
+    .hero-section {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        margin-bottom: 3rem;
+    }
+
+    .jumbotron {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 1rem;
+        padding: 3rem 2rem;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        backdrop-filter: blur(10px);
+
+        @media (min-width: 768px) {
+            padding: 4rem 3rem;
+        }
+
+        h1 {
+            font-size: 2rem;
+            color: #2d3748;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+            @media (min-width: 768px) {
+                font-size: 3rem;
+            }
+        }
+
+        .lead {
+            color: #4a5568;
+            font-size: 1.1rem;
+        }
+
+        .hero-stats {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-top: 2rem;
+            flex-wrap: wrap;
+
+            .stat-item {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                padding: 1rem 2rem;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                border-radius: 0.75rem;
+                box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+                transition: transform 0.3s ease;
+
+                &:hover {
+                    transform: translateY(-5px) scale(1.05);
+                }
+
+                .stat-number {
+                    font-size: 2rem;
+                    font-weight: bold;
+                    color: white;
+                    line-height: 1;
+                }
+
+                .stat-label {
+                    font-size: 0.875rem;
+                    color: rgba(255, 255, 255, 0.9);
+                    margin-top: 0.25rem;
+                    text-transform: uppercase;
+                    letter-spacing: 0.5px;
+                }
+            }
+        }
+    }
+
+    .feature-card {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        border: none;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+        border-radius: 0.75rem;
+        overflow: hidden;
+        animation: fadeInUp 0.6s ease-out;
+        animation-fill-mode: both;
+
+        &:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .icon-wrapper {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            transition: transform 0.3s ease;
+        }
+
+        &:hover .icon-wrapper {
+            transform: rotate(360deg) scale(1.1);
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .card-text {
+            color: #718096;
+        }
+
+        .btn {
+            transition: all 0.2s ease;
+            font-weight: 500;
+            border-radius: 0.5rem;
+
+            &:hover {
+                transform: scale(1.05);
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            }
+        }
+
+        @for $i from 1 through 4 {
+            &:nth-child(#{$i}) {
+                animation-delay: #{$i * 0.1}s;
+            }
+        }
+    }
+
+    h2 {
+        color: #2d3748;
+        position: relative;
+        padding-bottom: 1rem;
+
+        &::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            border-radius: 2px;
+        }
+    }
+
+    // Estilos para cards de informação
+    .info-card {
+        border: none;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        border-radius: 0.75rem;
+        transition: all 0.3s ease;
+
+        &:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+        }
+
+        .info-icon-wrapper {
+            width: 50px;
+            height: 50px;
+            border-radius: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .card-title {
+            color: #2d3748;
+            font-size: 1.1rem;
+        }
+
+        .card-text {
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+    }
+
+    // Card de agradecimentos especial
+    .thank-you-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        color: white;
+
+        h3 {
+            color: white;
+            font-size: 1.75rem;
+        }
+
+        .lead {
+            color: rgba(255, 255, 255, 0.95) !important;
+        }
+
+        .text-muted {
+            color: rgba(255, 255, 255, 0.85) !important;
+        }
+
+        strong {
+            color: white;
+            font-weight: 600;
+        }
+    }
+
+    // Animação de entrada
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+}

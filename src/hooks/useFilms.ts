@@ -1,33 +1,74 @@
 import { useState, useEffect } from 'react';
 import { Film } from '../types';
-import { StorageService } from '../services/storage';
-
-const STORAGE_KEY = 'cinema_films';
+import { SupabaseService } from '../services/supabase.service';
 
 export const useFilms = () => {
     const [films, setFilms] = useState<Film[]>([]);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         loadFilms();
     }, []);
 
-    const loadFilms = () => {
-        const data = StorageService.getData<Film>(STORAGE_KEY);
-        setFilms(data);
+    const loadFilms = async () => {
+        setLoading(true);
+        setError(null);
+
+        const { data, error: fetchError } = await SupabaseService.getAll<Film>('films');
+
+        if (fetchError) {
+            setError('Erro ao carregar filmes: ' + fetchError.message);
+            console.error(fetchError);
+        } else {
+            setFilms(data || []);
+        }
+
+        setLoading(false);
     };
 
-    const addFilm = (film: Film) => {
-        StorageService.addItem<Film>(STORAGE_KEY, film);
-        loadFilms();
+    const addFilm = async (film: Omit<Film, 'id' | 'created_at'>) => {
+        setLoading(true);
+        setError(null);
+
+        // Converter releaseDate para formato do banco
+        const filmData = {
+            ...film,
+            release_date: film.releaseDate
+        };
+
+        const { error: createError } = await SupabaseService.create<Film>('films', filmData);
+
+        if (createError) {
+            setError('Erro ao adicionar filme: ' + createError.message);
+            console.error(createError);
+        } else {
+            await loadFilms(); // Recarregar lista
+        }
+
+        setLoading(false);
     };
 
-    const removeFilm = (index: number) => {
-        StorageService.removeItem<Film>(STORAGE_KEY, index);
-        loadFilms();
+    const removeFilm = async (id: string) => {
+        setLoading(true);
+        setError(null);
+
+        const { error: deleteError } = await SupabaseService.delete('films', id);
+
+        if (deleteError) {
+            setError('Erro ao remover filme: ' + deleteError.message);
+            console.error(deleteError);
+        } else {
+            await loadFilms(); // Recarregar lista
+        }
+
+        setLoading(false);
     };
 
     return {
         films,
+        loading,
+        error,
         addFilm,
         removeFilm,
         refreshFilms: loadFilms

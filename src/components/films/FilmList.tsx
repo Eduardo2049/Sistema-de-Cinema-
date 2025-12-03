@@ -3,7 +3,7 @@ import { Film } from '../../types';
 
 interface FilmListProps {
     films: Film[];
-    onRemove: (index: number) => void;
+    onRemove: (id: string) => void;
 }
 
 export const FilmList = ({ films, onRemove }: FilmListProps) => {
@@ -18,9 +18,9 @@ export const FilmList = ({ films, onRemove }: FilmListProps) => {
         );
     }
 
-    const handleRemove = (index: number, title: string) => {
+    const handleRemove = (id: string, title: string) => {
         if (window.confirm(`Deseja realmente remover o filme "${title}"?`)) {
-            onRemove(index);
+            onRemove(id);
         }
     };
 
@@ -42,14 +42,16 @@ export const FilmList = ({ films, onRemove }: FilmListProps) => {
                                         <Badge bg="primary">Estreia: {film.releaseDate}</Badge>
                                     </div>
                                 </div>
-                                <Button
-                                    variant="danger"
-                                    size="sm"
-                                    className="ms-2"
-                                    onClick={() => handleRemove(index, film.title)}
-                                >
-                                    Remover
-                                </Button>
+                                {film.id && (
+                                    <Button
+                                        variant="danger"
+                                        size="sm"
+                                        className="ms-2"
+                                        onClick={() => handleRemove(film.id!, film.title)}
+                                    >
+                                        Remover
+                                    </Button>
+                                )}
                             </div>
                         </ListGroup.Item>
                     ))}

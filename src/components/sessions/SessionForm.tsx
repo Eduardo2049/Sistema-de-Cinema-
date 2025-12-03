@@ -10,8 +10,8 @@ interface SessionFormProps {
 
 export const SessionForm = ({ onSubmit, films, rooms }: SessionFormProps) => {
     const [formData, setFormData] = useState({
-        movieId: -1,
-        roomId: -1,
+        movieId: '',
+        roomId: '',
         datetime: '',
         price: 0,
         language: '',
@@ -21,14 +21,16 @@ export const SessionForm = ({ onSubmit, films, rooms }: SessionFormProps) => {
     const handleSubmit = (e: FormEvent) => {
         e.preventDefault();
 
-        if (formData.movieId === -1 || formData.roomId === -1 ||
+        if (!formData.movieId || !formData.roomId ||
             !formData.datetime || !formData.price || !formData.language || !formData.format) {
             alert('Por favor, preencha todos os campos obrigatórios.');
             return;
         }
 
-        const movieTitle = films[formData.movieId]?.title || '';
-        const roomName = rooms[formData.roomId]?.name || '';
+        const selectedFilm = films.find(f => f.id === formData.movieId);
+        const selectedRoom = rooms.find(r => r.id === formData.roomId);
+        const movieTitle = selectedFilm?.title || '';
+        const roomName = selectedRoom?.name || '';
 
         const session: Session = {
             movieId: formData.movieId,
@@ -45,8 +47,8 @@ export const SessionForm = ({ onSubmit, films, rooms }: SessionFormProps) => {
 
         // Reset form
         setFormData({
-            movieId: -1,
-            roomId: -1,
+            movieId: '',
+            roomId: '',
             datetime: '',
             price: 0,
             language: '',
@@ -65,12 +67,12 @@ export const SessionForm = ({ onSubmit, films, rooms }: SessionFormProps) => {
                                 <Form.Label>Filme *</Form.Label>
                                 <Form.Select
                                     value={formData.movieId}
-                                    onChange={(e) => setFormData({ ...formData, movieId: parseInt(e.target.value) })}
+                                    onChange={(e) => setFormData({ ...formData, movieId: e.target.value })}
                                     required
                                 >
-                                    <option value="-1">Selecione um filme</option>
-                                    {films.map((film, index) => (
-                                        <option key={index} value={index}>
+                                    <option value="">Selecione um filme</option>
+                                    {films.map((film) => (
+                                        <option key={film.id} value={film.id}>
                                             {film.title} - {film.genre} ({film.duration} min)
                                         </option>
                                     ))}
@@ -83,12 +85,12 @@ export const SessionForm = ({ onSubmit, films, rooms }: SessionFormProps) => {
                                 <Form.Label>Sala *</Form.Label>
                                 <Form.Select
                                     value={formData.roomId}
-                                    onChange={(e) => setFormData({ ...formData, roomId: parseInt(e.target.value) })}
+                                    onChange={(e) => setFormData({ ...formData, roomId: e.target.value })}
                                     required
                                 >
-                                    <option value="-1">Selecione uma sala</option>
-                                    {rooms.map((room, index) => (
-                                        <option key={index} value={index}>
+                                    <option value="">Selecione uma sala</option>
+                                    {rooms.map((room) => (
+                                        <option key={room.id} value={room.id}>
                                             Sala {room.name} - {room.type} ({room.capacity} lugares)
                                         </option>
                                     ))}
