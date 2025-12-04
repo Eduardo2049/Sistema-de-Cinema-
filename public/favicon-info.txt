@@ -1,3 +1,0 @@
-<!-- Favicon alternativo em formato ICO -->
-<!-- Este arquivo será gerado automaticamente pelo build do Vite -->
-<!-- Por enquanto, o favicon.svg será usado -->

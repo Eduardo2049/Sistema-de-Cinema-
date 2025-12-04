@@ -22,8 +22,8 @@ export const SalesList = ({ sales }: SalesListProps) => {
             <Card.Body>
                 <Card.Title>Lista de Vendas</Card.Title>
                 <ListGroup>
-                    {sales.map((sale, index) => (
-                        <ListGroup.Item key={index}>
+                    {sales.map((sale) => (
+                        <ListGroup.Item key={sale.id}>
                             <div className="d-flex justify-content-between align-items-start">
                                 <div className="flex-grow-1">
                                     <h6 className="mb-1"><strong>{sale.sessionInfo}</strong></h6>

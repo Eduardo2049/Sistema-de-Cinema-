@@ -1,7 +1,8 @@
-import { useState, FormEvent, useEffect } from 'react';
+import { useState, FormEvent, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Form, Button, Row, Col, Card } from 'react-bootstrap';
+import { Form, Button, Row, Col, Card, Alert } from 'react-bootstrap';
 import { Sale, Session } from '../../types';
+import { CinemaValidationService } from '../../services/cinema-validation.service';
 
 interface SalesFormProps {
     onSubmit: (sale: Sale) => void;
@@ -19,6 +20,16 @@ export const SalesForm = ({ onSubmit, sessions }: SalesFormProps) => {
         ticketQuantity: 1
     });
 
+    // Filtrar apenas sessões disponíveis (futuras e no horário de funcionamento)
+    const availableSessions = useMemo(() => {
+        return CinemaValidationService.filterAvailableSessions(sessions);
+    }, [sessions]);
+
+    // Verificar se uma sessão está disponível
+    const isSessionAvailable = (sessionId: string) => {
+        return availableSessions.some(s => s.id === sessionId);
+    };
+
     useEffect(() => {
         if (preselectedSession) {
             setFormData(prev => ({ ...prev, sessionId: preselectedSession }));
@@ -34,10 +45,29 @@ export const SalesForm = ({ onSubmit, sessions }: SalesFormProps) => {
             return;
         }
 
+        // Validar se a sessão selecionada está disponível
+        if (!isSessionAvailable(formData.sessionId)) {
+            alert('A sessão selecionada não está mais disponível. Por favor, escolha uma sessão futura.');
+            return;
+        }
+
         const session = sessions.find(s => s.id === formData.sessionId);
         if (!session) {
             alert('Sessão inválida.');
             return;
+        }
+
+        // TODO: Validar capacidade da sala
+        // Por enquanto, vamos apenas avisar se a quantidade for muito alta
+        if (formData.ticketQuantity > 100) {
+            const confirmacao = window.confirm(
+                `Atenção! Você está tentando comprar ${formData.ticketQuantity} ingressos.\n\n` +
+                `Isso parece ser uma quantidade muito alta.\n\n` +
+                `Deseja continuar mesmo assim?`
+            );
+            if (!confirmacao) {
+                return;
+            }
         }
 
         const totalPrice = session.price * formData.ticketQuantity;
@@ -68,6 +98,14 @@ export const SalesForm = ({ onSubmit, sessions }: SalesFormProps) => {
         <Card className="mb-4">
             <Card.Body>
                 <Card.Title>Vender Ingressos</Card.Title>
+
+                {sessions.length === 0 && (
+                    <Alert variant="warning">
+                        <strong>⚠️ Nenhuma sessão cadastrada</strong>
+                        <p className="mb-0">Não há sessões cadastradas no sistema. Cadastre sessões primeiro.</p>
+                    </Alert>
+                )}
+
                 <Form onSubmit={handleSubmit}>
                     <Row className="g-3">
                         <Col md={12}>
@@ -77,13 +115,27 @@ export const SalesForm = ({ onSubmit, sessions }: SalesFormProps) => {
                                     value={formData.sessionId}
                                     onChange={(e) => setFormData({ ...formData, sessionId: e.target.value })}
                                     required
+                                    disabled={sessions.length === 0}
+                                    style={{ color: formData.sessionId && !isSessionAvailable(formData.sessionId || '') ? '#6c757d' : 'inherit' }}
                                 >
                                     <option value="">Selecione uma sessão</option>
-                                    {sessions.map((session) => (
-                                        <option key={session.id} value={session.id}>
-                                            {session.movieTitle} - {session.datetime} - Sala {session.roomName} - R$ {session.price.toFixed(2)}
-                                        </option>
-                                    ))}
+                                    {sessions.map((session) => {
+                                        const time = CinemaValidationService.formatSessionTime(session.datetime);
+                                        const date = new Date(session.datetime).toLocaleDateString('pt-BR');
+                                        const isAvailable = isSessionAvailable(session.id || '');
+                                        return (
+                                            <option
+                                                key={session.id}
+                                                value={session.id}
+                                                style={{
+                                                    color: isAvailable ? '#6f42c1' : '#6c757d',
+                                                    fontWeight: isAvailable ? 'bold' : 'normal'
+                                                }}
+                                            >
+                                                {isAvailable ? '🟣' : '⚪'} {session.movieTitle} - {date} às {time} - Sala {session.roomName} - R$ {session.price.toFixed(2)}
+                                            </option>
+                                        );
+                                    })}
                                 </Form.Select>
                             </Form.Group>
                         </Col>
