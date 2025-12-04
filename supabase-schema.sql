@@ -131,8 +131,4 @@ CREATE POLICY "Enable update for all users" ON public.sales
 CREATE POLICY "Enable delete for all users" ON public.sales
     FOR DELETE USING (true);
 
--- ============================================
--- SCRIPT EXECUTADO COM SUCESSO! ✅
--- Verifique em "Table Editor" se as 4 tabelas
--- foram criadas: films, rooms, sessions, sales
--- ============================================
+

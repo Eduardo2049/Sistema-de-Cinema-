@@ -1,7 +1,15 @@
-import { Container, Row, Col, Card } from 'react-bootstrap';
+import { Container, Row, Col, Card, Badge } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
+import { useFilms } from '../hooks/useFilms';
+import { useRooms } from '../hooks/useRooms';
+import { useSessions } from '../hooks/useSessions';
+import { useSales } from '../hooks/useSales';
 
 export const HomePage = () => {
+    const { films } = useFilms();
+    const { rooms } = useRooms();
+    const { sessions } = useSessions();
+    const { sales } = useSales();
     return (
         <Container fluid className="px-3 px-md-5 py-5">
             <Row className="justify-content-center">
@@ -24,7 +32,10 @@ export const HomePage = () => {
                         <Col xs={12} sm={6} lg={3}>
                             <Card className="h-100 shadow-sm border-0">
                                 <Card.Body className="text-center">
-                                    <Card.Title className="mb-3">🎥 Filmes</Card.Title>
+                                    <Card.Title className="mb-3">
+                                        🎥 Filmes
+                                        <Badge bg="primary" className="ms-2">{films.length}</Badge>
+                                    </Card.Title>
                                     <Card.Text className="small">Cadastre e gerencie os filmes do cinema.</Card.Text>
                                     <Link to="/filmes" className="btn btn-primary btn-sm mt-2">Acessar</Link>
                                 </Card.Body>
@@ -34,7 +45,10 @@ export const HomePage = () => {
                         <Col xs={12} sm={6} lg={3}>
                             <Card className="h-100 shadow-sm border-0">
                                 <Card.Body className="text-center">
-                                    <Card.Title className="mb-3">🎭 Salas</Card.Title>
+                                    <Card.Title className="mb-3">
+                                        🎭 Salas
+                                        <Badge bg="success" className="ms-2">{rooms.length}</Badge>
+                                    </Card.Title>
                                     <Card.Text className="small">Configure as salas do cinema.</Card.Text>
                                     <Link to="/salas" className="btn btn-primary btn-sm mt-2">Acessar</Link>
                                 </Card.Body>
@@ -44,7 +58,10 @@ export const HomePage = () => {
                         <Col xs={12} sm={6} lg={3}>
                             <Card className="h-100 shadow-sm border-0">
                                 <Card.Body className="text-center">
-                                    <Card.Title className="mb-3">⏰ Sessões</Card.Title>
+                                    <Card.Title className="mb-3">
+                                        ⏰ Sessões
+                                        <Badge bg="warning" text="dark" className="ms-2">{sessions.length}</Badge>
+                                    </Card.Title>
                                     <Card.Text className="small">Crie sessões de exibição.</Card.Text>
                                     <Link to="/sessoes" className="btn btn-primary btn-sm mt-2">Acessar</Link>
                                 </Card.Body>
@@ -54,7 +71,10 @@ export const HomePage = () => {
                         <Col xs={12} sm={6} lg={3}>
                             <Card className="h-100 shadow-sm border-0">
                                 <Card.Body className="text-center">
-                                    <Card.Title className="mb-3">🎫 Vendas</Card.Title>
+                                    <Card.Title className="mb-3">
+                                        🎫 Vendas
+                                        <Badge bg="danger" className="ms-2">{sales.length}</Badge>
+                                    </Card.Title>
                                     <Card.Text className="small">Venda ingressos para as sessões.</Card.Text>
                                     <Link to="/vendas" className="btn btn-primary btn-sm mt-2">Acessar</Link>
                                 </Card.Body>

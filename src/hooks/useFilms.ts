@@ -15,13 +15,18 @@ export const useFilms = () => {
         setLoading(true);
         setError(null);
 
-        const { data, error: fetchError } = await SupabaseService.getAll<Film>('films');
+        const { data, error: fetchError } = await SupabaseService.getAll<any>('films');
 
         if (fetchError) {
             setError('Erro ao carregar filmes: ' + fetchError.message);
             console.error(fetchError);
         } else {
-            setFilms(data || []);
+            // Converter release_date (snake_case) para releaseDate (camelCase)
+            const filmsFormatted = (data || []).map((film: any) => ({
+                ...film,
+                releaseDate: film.release_date
+            }));
+            setFilms(filmsFormatted);
         }
 
         setLoading(false);
@@ -31,13 +36,14 @@ export const useFilms = () => {
         setLoading(true);
         setError(null);
 
-        // Converter releaseDate para formato do banco
+        // Converter releaseDate (camelCase) para release_date (snake_case)
+        const { releaseDate, ...filmRest } = film;
         const filmData = {
-            ...film,
-            release_date: film.releaseDate
+            ...filmRest,
+            release_date: releaseDate
         };
 
-        const { error: createError } = await SupabaseService.create<Film>('films', filmData);
+        const { error: createError } = await SupabaseService.create<any>('films', filmData);
 
         if (createError) {
             setError('Erro ao adicionar filme: ' + createError.message);

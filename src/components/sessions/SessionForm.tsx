@@ -1,5 +1,5 @@
 import { useState, FormEvent } from 'react';
-import { Form, Button, Row, Col, Card } from 'react-bootstrap';
+import { Form, Button, Row, Col, Card, Alert } from 'react-bootstrap';
 import { Session, Film, Room } from '../../types';
 
 interface SessionFormProps {
@@ -18,19 +18,43 @@ export const SessionForm = ({ onSubmit, films, rooms }: SessionFormProps) => {
         format: ''
     });
 
+    const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
     const handleSubmit = (e: FormEvent) => {
         e.preventDefault();
+        setErrorMessage(null); // Limpar erro anterior
 
         if (!formData.movieId || !formData.roomId ||
             !formData.datetime || !formData.price || !formData.language || !formData.format) {
-            alert('Por favor, preencha todos os campos obrigatórios.');
+            setErrorMessage('Por favor, preencha todos os campos obrigatórios.');
             return;
         }
 
         const selectedFilm = films.find(f => f.id === formData.movieId);
         const selectedRoom = rooms.find(r => r.id === formData.roomId);
-        const movieTitle = selectedFilm?.title || '';
-        const roomName = selectedRoom?.name || '';
+
+        if (!selectedFilm || !selectedRoom) {
+            setErrorMessage('Filme ou sala não encontrados.');
+            return;
+        }
+
+        // Validar se a sessão é após a data de lançamento do filme
+        const sessionDate = new Date(formData.datetime);
+        const releaseDate = new Date(selectedFilm.releaseDate);
+
+        if (sessionDate < releaseDate) {
+            const releaseDateFormatted = releaseDate.toLocaleDateString('pt-BR');
+            setErrorMessage(
+                `Não é possível criar uma sessão antes da data de lançamento do filme!\n\n` +
+                `Filme: ${selectedFilm.title}\n` +
+                `Data de lançamento: ${releaseDateFormatted}\n\n` +
+                `Por favor, escolha uma data igual ou posterior ao lançamento.`
+            );
+            return;
+        }
+
+        const movieTitle = selectedFilm.title;
+        const roomName = selectedRoom.name;
 
         const session: Session = {
             movieId: formData.movieId,
@@ -60,6 +84,14 @@ export const SessionForm = ({ onSubmit, films, rooms }: SessionFormProps) => {
         <Card className="mb-4">
             <Card.Body>
                 <Card.Title>Adicionar Nova Sessão</Card.Title>
+
+                {errorMessage && (
+                    <Alert variant="danger" dismissible onClose={() => setErrorMessage(null)} className="mt-3">
+                        <Alert.Heading>❌ Erro ao criar sessão</Alert.Heading>
+                        <p style={{ whiteSpace: 'pre-line' }} className="mb-0">{errorMessage}</p>
+                    </Alert>
+                )}
+
                 <Form onSubmit={handleSubmit}>
                     <Row className="g-3">
                         <Col md={6}>
