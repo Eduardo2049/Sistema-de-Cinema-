@@ -43,7 +43,7 @@ export const useFilms = () => {
             release_date: releaseDate
         };
 
-        const { error: createError } = await SupabaseService.create<Film>('films', filmData);
+        const { error: createError } = await SupabaseService.create<any>('films', filmData);
 
         if (createError) {
             setError('Erro ao adicionar filme: ' + createError.message);
