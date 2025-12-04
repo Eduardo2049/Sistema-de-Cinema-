@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verificação de Ambiente - Projeto Cinema</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        h1 {
+            color: #333;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+        .check-item {
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border-left: 4px solid #ccc;
+        }
+        .check-item.success {
+            background: #d4edda;
+            border-left-color: #28a745;
+        }
+        .check-item.error {
+            background: #f8d7da;
+            border-left-color: #dc3545;
+        }
+        .check-item.warning {
+            background: #fff3cd;
+            border-left-color: #ffc107;
+        }
+        .status {
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        code {
+            background: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+        }
+        .info {
+            background: #e7f3ff;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+            border-left: 4px solid #2196F3;
+        }
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 20px;
+        }
+        button:hover {
+            background: #5568d3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Verificação de Ambiente - Projeto Cinema</h1>
+        
+        <div class="info">
+            <strong>ℹ️ Informação:</strong> Esta página verifica se as variáveis de ambiente estão configuradas corretamente.
+        </div>
+
+        <div id="results"></div>
+
+        <button onclick="location.reload()">🔄 Verificar Novamente</button>
+    </div>
+
+    <script type="module">
+        const results = document.getElementById('results');
+        
+        function addCheck(title, status, message) {
+            const div = document.createElement('div');
+            div.className = `check-item ${status}`;
+            
+            const statusIcon = status === 'success' ? '✅' : status === 'error' ? '❌' : '⚠️';
+            
+            div.innerHTML = `
+                <span class="status">${statusIcon} ${title}</span>
+                <div>${message}</div>
+            `;
+            
+            results.appendChild(div);
+        }
+
+        // Verificar variáveis de ambiente
+        const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+        const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
+        // Verificação da URL do Supabase
+        if (supabaseUrl) {
+            addCheck(
+                'VITE_SUPABASE_URL',
+                'success',
+                `Configurada: <code>${supabaseUrl.substring(0, 30)}...</code>`
+            );
+        } else {
+            addCheck(
+                'VITE_SUPABASE_URL',
+                'error',
+                'Não configurada! Adicione esta variável no painel do Vercel ou no arquivo .env local.'
+            );
+        }
+
+        // Verificação da chave do Supabase
+        if (supabaseKey) {
+            addCheck(
+                'VITE_SUPABASE_ANON_KEY',
+                'success',
+                `Configurada: <code>${supabaseKey.substring(0, 20)}...</code>`
+            );
+        } else {
+            addCheck(
+                'VITE_SUPABASE_ANON_KEY',
+                'error',
+                'Não configurada! Adicione esta variável no painel do Vercel ou no arquivo .env local.'
+            );
+        }
+
+        // Verificação do ambiente
+        const mode = import.meta.env.MODE;
+        addCheck(
+            'Modo de Execução',
+            'success',
+            `Rodando em modo: <code>${mode}</code>`
+        );
+
+        // Verificação de produção
+        const isProd = import.meta.env.PROD;
+        addCheck(
+            'Ambiente',
+            isProd ? 'warning' : 'success',
+            isProd ? 'Ambiente de PRODUÇÃO' : 'Ambiente de DESENVOLVIMENTO'
+        );
+
+        // Resumo final
+        if (supabaseUrl && supabaseKey) {
+            addCheck(
+                'Status Geral',
+                'success',
+                'Todas as variáveis de ambiente estão configuradas! ✨'
+            );
+        } else {
+            addCheck(
+                'Status Geral',
+                'error',
+                `
+                    <strong>Ação necessária:</strong><br>
+                    1. Acesse o painel do Vercel<br>
+                    2. Vá em Settings → Environment Variables<br>
+                    3. Adicione as variáveis faltantes<br>
+                    4. Faça um redeploy do projeto
+                `
+            );
+        }
+    </script>
+</body>
+</html>
