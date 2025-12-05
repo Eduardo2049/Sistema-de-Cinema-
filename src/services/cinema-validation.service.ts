@@ -24,14 +24,11 @@ export class CinemaValidationService {
 
         return sessions.filter(session => {
             const sessionDate = new Date(session.datetime);
+            const isFuture = sessionDate > now;
+            const isValidTime = this.isValidSessionTime(session.datetime);
 
-            // Verifica se é futura
-            if (sessionDate <= now) {
-                return false;
-            }
-
-            // Verifica se está no horário de funcionamento
-            return this.isValidSessionTime(session.datetime);
+            // Retorna apenas sessões futuras e dentro do horário de funcionamento
+            return isFuture && isValidTime;
         });
     }
 

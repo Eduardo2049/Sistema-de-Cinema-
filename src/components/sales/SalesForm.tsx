@@ -57,8 +57,7 @@ export const SalesForm = ({ onSubmit, sessions }: SalesFormProps) => {
             return;
         }
 
-        // TODO: Validar capacidade da sala
-        // Por enquanto, vamos apenas avisar se a quantidade for muito alta
+        // Validar quantidade de ingressos
         if (formData.ticketQuantity > 100) {
             const confirmacao = window.confirm(
                 `Atenção! Você está tentando comprar ${formData.ticketQuantity} ingressos.\n\n` +
