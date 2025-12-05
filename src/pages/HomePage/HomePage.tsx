@@ -3,12 +3,17 @@ import { Link } from 'react-router-dom';
 import { MdMovie, MdTheaters, MdSchedule, MdConfirmationNumber, MdArrowForward } from 'react-icons/md';
 import { useFilms } from '../../hooks/useFilms';
 import { useRooms } from '../../hooks/useRooms';
+import { useSales } from '../../hooks/useSales';
+import { useSessions } from '../../hooks/useSessions';
+
 import './HomePage.scss';
 
 export const HomePage = () => {
     // Hooks para obter contadores
     const { films } = useFilms();
     const { rooms } = useRooms();
+    const { sessions } = useSessions();
+    const { sales } = useSales();
 
     // Dados dos cards com ícones e cores
     const features = [
@@ -19,7 +24,8 @@ export const HomePage = () => {
             path: '/filmes',
             color: 'primary',
             count: films.length,
-            gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+            gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            borderColor: '#667eea' // Roxo do gradiente
         },
         {
             icon: MdTheaters,
@@ -28,7 +34,8 @@ export const HomePage = () => {
             path: '/salas',
             color: 'success',
             count: rooms.length,
-            gradient: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)'
+            gradient: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+            borderColor: '#f093fb' // Rosa do gradiente
         },
         {
             icon: MdSchedule,
@@ -36,8 +43,9 @@ export const HomePage = () => {
             description: 'Crie sessões de exibição',
             path: '/sessoes',
             color: 'warning',
-            count: 0,
-            gradient: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)'
+            count: sessions.length,
+            gradient: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+            borderColor: '#4facfe' // Azul claro do gradiente
         },
         {
             icon: MdConfirmationNumber,
@@ -45,8 +53,9 @@ export const HomePage = () => {
             description: 'Venda ingressos para as sessões',
             path: '/vendas',
             color: 'danger',
-            count: 0,
-            gradient: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)'
+            count: sales.length,
+            gradient: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
+            borderColor: '#43e97b' // Verde do gradiente
         }
     ];
 
@@ -75,8 +84,12 @@ export const HomePage = () => {
                                             <span className="stat-label">Salas</span>
                                         </div>
                                         <div className="stat-item">
-                                            <span className="stat-number">0</span>
+                                            <span className="stat-number">{sessions.length}</span>
                                             <span className="stat-label">Sessões</span>
+                                        </div>
+                                        <div className="stat-item">
+                                            <span className="stat-number">{sales.length}</span>
+                                            <span className="stat-label">Vendas</span>
                                         </div>
                                     </div>
                                 </div>
@@ -96,7 +109,7 @@ export const HomePage = () => {
                                 const Icon = feature.icon;
                                 return (
                                     <Col key={index} xs={12} sm={6} lg={3}>
-                                        <Card className="h-100 feature-card" style={{ borderTop: `4px solid var(--bs-${feature.color})` }}>
+                                        <Card className="h-100 feature-card" style={{ borderTop: `4px solid ${feature.borderColor}` }}>
                                             <Card.Body className="text-center d-flex flex-column">
                                                 <div className="icon-wrapper mb-3" style={{ background: feature.gradient }}>
                                                     <Icon size={32} color="white" />
@@ -104,7 +117,13 @@ export const HomePage = () => {
                                                 <Card.Title className="mb-2 fw-bold">
                                                     {feature.title}
                                                     {feature.count > 0 && (
-                                                        <Badge bg={feature.color} className="ms-2">
+                                                        <Badge
+                                                            className="ms-2"
+                                                            style={{
+                                                                backgroundColor: feature.borderColor,
+                                                                color: 'white'
+                                                            }}
+                                                        >
                                                             {feature.count}
                                                         </Badge>
                                                     )}
@@ -113,7 +132,15 @@ export const HomePage = () => {
                                                     {feature.description}
                                                 </Card.Text>
                                                 <Link to={feature.path} className="text-decoration-none mt-3">
-                                                    <Button variant={feature.color} size="sm" className="w-100">
+                                                    <Button
+                                                        size="sm"
+                                                        className="w-100"
+                                                        style={{
+                                                            backgroundColor: feature.borderColor,
+                                                            borderColor: feature.borderColor,
+                                                            color: 'white'
+                                                        }}
+                                                    >
                                                         Acessar <MdArrowForward />
                                                     </Button>
                                                 </Link>
