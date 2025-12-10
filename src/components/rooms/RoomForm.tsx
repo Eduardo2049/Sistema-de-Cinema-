@@ -1,10 +1,24 @@
 import { useState, FormEvent } from 'react';
-import { Form, Button, Row, Col, Card } from 'react-bootstrap';
+import { Form, Button, Row, Col, Card, Alert } from 'react-bootstrap';
 import { Room } from '../../types';
 
 interface RoomFormProps {
     onSubmit: (room: Room) => void;
 }
+
+// Função para gerar layout de assentos automaticamente
+const generateSeatLayout = (capacity: number) => {
+    // Determinar número de fileiras e assentos por fileira
+    // Fazer um layout mais ou menos quadrado/retangular
+    const columns = Math.ceil(Math.sqrt(capacity * 1.2)); // Um pouco mais largo que alto
+    const rows = Math.ceil(capacity / columns);
+    
+    return {
+        rows,
+        columns,
+        disabledSeats: [] // Sem assentos desabilitados por padrão
+    };
+};
 
 export const RoomForm = ({ onSubmit }: RoomFormProps) => {
     const [formData, setFormData] = useState<Room>({
@@ -12,6 +26,8 @@ export const RoomForm = ({ onSubmit }: RoomFormProps) => {
         type: '',
         capacity: 0
     });
+
+    const [generateLayout, setGenerateLayout] = useState(true);
 
     const handleSubmit = (e: FormEvent) => {
         e.preventDefault();
@@ -21,7 +37,13 @@ export const RoomForm = ({ onSubmit }: RoomFormProps) => {
             return;
         }
 
-        onSubmit(formData);
+        // Gerar layout de assentos se a opção estiver marcada
+        const roomData: Room = {
+            ...formData,
+            seatLayout: generateLayout ? generateSeatLayout(formData.capacity) : undefined
+        };
+
+        onSubmit(roomData);
 
         // Reset form
         setFormData({
@@ -29,6 +51,7 @@ export const RoomForm = ({ onSubmit }: RoomFormProps) => {
             type: '',
             capacity: 0
         });
+        setGenerateLayout(true);
     };
 
     return (
@@ -83,8 +106,102 @@ export const RoomForm = ({ onSubmit }: RoomFormProps) => {
                         </Col>
 
                         <Col md={12}>
+                            <Form.Group>
+                                <Form.Check
+                                    type="checkbox"
+                                    label="🪑 Gerar mapa de poltronas automaticamente (permite seleção de assentos)"
+                                    checked={generateLayout}
+                                    onChange={(e) => setGenerateLayout(e.target.checked)}
+                                />
+                                <Form.Text className="text-muted">
+                                    {generateLayout 
+                                        ? `Será criado um layout de aproximadamente ${Math.ceil(Math.sqrt((formData.capacity || 0) * 1.2))} colunas x ${Math.ceil((formData.capacity || 0) / Math.ceil(Math.sqrt((formData.capacity || 0) * 1.2)))} fileiras`
+                                        : 'Sem seleção de poltronas (sala tradicional)'
+                                    }
+                                </Form.Text>
+                            </Form.Group>
+                        </Col>
+
+                        {generateLayout && formData.capacity > 0 && (
+                            <Col md={12}>
+                                <Alert variant="info">
+                                    <strong>ℹ️ Layout Automático:</strong> O mapa de poltronas será gerado automaticamente 
+                                    com base na capacidade da sala. Os clientes poderão escolher assentos específicos ao comprar ingressos.
+                                    <hr />
+                                    <div className="mt-2">
+                                        <strong>📐 Preview do Layout:</strong>
+                                        <div style={{ 
+                                            marginTop: '10px', 
+                                            padding: '15px', 
+                                            backgroundColor: '#f8f9fa', 
+                                            borderRadius: '8px',
+                                            display: 'inline-block'
+                                        }}>
+                                            {(() => {
+                                                const columns = Math.ceil(Math.sqrt(formData.capacity * 1.2));
+                                                const rows = Math.ceil(formData.capacity / columns);
+                                                const rowLetters = 'ABCDEFGHIJKLMNOP'.slice(0, rows);
+                                                
+                                                return (
+                                                    <div>
+                                                        <div style={{ textAlign: 'center', marginBottom: '10px', color: '#666' }}>
+                                                            🎬 TELA
+                                                        </div>
+                                                        {rowLetters.split('').map((rowLetter, rowIdx) => (
+                                                            <div key={rowLetter} style={{ 
+                                                                display: 'flex', 
+                                                                gap: '5px', 
+                                                                marginBottom: '5px',
+                                                                alignItems: 'center'
+                                                            }}>
+                                                                <span style={{ 
+                                                                    width: '20px', 
+                                                                    fontWeight: 'bold',
+                                                                    fontSize: '12px',
+                                                                    color: '#666'
+                                                                }}>{rowLetter}</span>
+                                                                {Array.from({ length: columns }).map((_, colIdx) => {
+                                                                    const seatNumber = rowIdx * columns + colIdx + 1;
+                                                                    if (seatNumber > formData.capacity) return null;
+                                                                    return (
+                                                                        <div key={colIdx} style={{
+                                                                            width: '25px',
+                                                                            height: '25px',
+                                                                            backgroundColor: '#28a745',
+                                                                            borderRadius: '4px',
+                                                                            display: 'flex',
+                                                                            alignItems: 'center',
+                                                                            justifyContent: 'center',
+                                                                            fontSize: '10px',
+                                                                            color: 'white',
+                                                                            fontWeight: 'bold'
+                                                                        }}>
+                                                                            {colIdx + 1}
+                                                                        </div>
+                                                                    );
+                                                                })}
+                                                            </div>
+                                                        ))}
+                                                        <div style={{ 
+                                                            marginTop: '10px', 
+                                                            fontSize: '12px', 
+                                                            color: '#666',
+                                                            textAlign: 'center'
+                                                        }}>
+                                                            <strong>{columns} colunas × {rows} fileiras = {formData.capacity} assentos</strong>
+                                                        </div>
+                                                    </div>
+                                                );
+                                            })()}
+                                        </div>
+                                    </div>
+                                </Alert>
+                            </Col>
+                        )}
+
+                        <Col md={12}>
                             <Button type="submit" variant="success" className="w-100">
-                                Salvar Sala
+                                💾 Salvar Sala
                             </Button>
                         </Col>
                     </Row>

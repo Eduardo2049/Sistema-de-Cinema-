@@ -12,9 +12,10 @@ import { useOccupiedSeats } from '../../hooks/useOccupiedSeats';
 interface CompleteOrderFormProps {
     sessions: Session[];
     rooms: Room[];
+    onOrderCreated?: () => void;
 }
 
-export const CompleteOrderForm = ({ sessions, rooms }: CompleteOrderFormProps) => {
+export const CompleteOrderForm = ({ sessions, rooms, onOrderCreated }: CompleteOrderFormProps) => {
     const [searchParams] = useSearchParams();
     const preselectedSession = searchParams.get('sessao');
 
@@ -37,6 +38,7 @@ export const CompleteOrderForm = ({ sessions, rooms }: CompleteOrderFormProps) =
         name: string;
     }>>([]);
     const [submitting, setSubmitting] = useState(false);
+    const [lastSubmitTime, setLastSubmitTime] = useState<number>(0);
 
     const { occupiedSeats, loading: loadingSeats } = useOccupiedSeats(formData.sessionId || null);
 
@@ -109,6 +111,15 @@ export const CompleteOrderForm = ({ sessions, rooms }: CompleteOrderFormProps) =
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
 
+        // Prevenir duplo submit (verificar se já foi enviado nos últimos 3 segundos)
+        const now = Date.now();
+        if (submitting || (now - lastSubmitTime < 3000)) {
+            console.log('Submit já em andamento ou muito recente, ignorando...');
+            return;
+        }
+        
+        setLastSubmitTime(now);
+
         if (!formData.sessionId || !formData.customerName || !formData.customerEmail) {
             alert('Por favor, preencha todos os campos obrigatórios.');
             return;
@@ -144,6 +155,7 @@ export const CompleteOrderForm = ({ sessions, rooms }: CompleteOrderFormProps) =
 
         try {
             setSubmitting(true);
+            console.log('Criando pedido...');
 
             const order = await OrderService.createOrder({
                 customerName: formData.customerName,
@@ -160,6 +172,7 @@ export const CompleteOrderForm = ({ sessions, rooms }: CompleteOrderFormProps) =
                 paymentMethod: formData.paymentMethod
             });
 
+            console.log('Pedido criado com sucesso:', order.id);
             alert(`✅ Pedido criado com sucesso!\n\nPedido #${order.id?.substring(0, 8)}\nTotal: ${OrderService.formatPrice(order.totalAmount)}`);
 
             // Reset form
@@ -173,14 +186,20 @@ export const CompleteOrderForm = ({ sessions, rooms }: CompleteOrderFormProps) =
             setSelectedSeats([]);
             setSelectedSnacks([]);
 
-            // Opcional: navegar para lista de pedidos
-            // navigate('/pedidos');
+            // Aguardar um pouco antes de notificar (evitar race condition)
+            setTimeout(() => {
+                if (onOrderCreated) {
+                    console.log('Notificando atualização da lista...');
+                    onOrderCreated();
+                }
+            }, 500);
 
         } catch (error) {
             console.error('Erro ao criar pedido:', error);
             alert('Erro ao criar pedido. Tente novamente.');
         } finally {
             setSubmitting(false);
+            console.log('Submit finalizado');
         }
     };
 

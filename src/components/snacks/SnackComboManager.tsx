@@ -3,6 +3,50 @@ import { Container, Row, Col, Card, Button, Form, Table, Badge, Alert } from 're
 import { SnackCombo, SnackCategory } from '../../types';
 import { SnackComboService } from '../../services/snack-combo.service';
 
+// Opções pré-definidas de lanches
+const SNACK_OPTIONS = [
+    { name: 'Pipoca Pequena', price: 15.00 },
+    { name: 'Pipoca Média', price: 20.00 },
+    { name: 'Pipoca Grande', price: 25.00 },
+    { name: 'Pipoca Mega', price: 30.00 },
+    { name: 'Nachos com Queijo', price: 18.00 },
+    { name: 'Hot Dog', price: 16.00 },
+    { name: 'Hambúrguer', price: 22.00 },
+    { name: 'Batata Frita', price: 12.00 },
+    { name: 'Nuggets (6 unidades)', price: 15.00 },
+    { name: 'Chocolate M&M\'s', price: 8.00 },
+    { name: 'Chocolate Twix', price: 8.00 },
+    { name: 'Doritos', price: 10.00 }
+];
+
+// Opções pré-definidas de bebidas
+const DRINK_OPTIONS = [
+    { name: 'Refrigerante Pequeno', price: 8.00 },
+    { name: 'Refrigerante Médio', price: 10.00 },
+    { name: 'Refrigerante Grande', price: 12.00 },
+    { name: 'Refrigerante 2L', price: 15.00 },
+    { name: 'Água Mineral', price: 5.00 },
+    { name: 'Suco Natural', price: 10.00 },
+    { name: 'Energético', price: 12.00 },
+    { name: 'Cerveja', price: 15.00 },
+    { name: 'Milk Shake', price: 18.00 },
+    { name: 'Café', price: 6.00 }
+];
+
+// Opções pré-definidas de combos
+const COMBO_OPTIONS = [
+    { name: 'Combo Clássico', description: 'Pipoca Média + Refrigerante Médio', price: 28.00, items: 2 },
+    { name: 'Combo Família', description: 'Pipoca Grande + 2 Refrigerantes Médios', price: 42.00, items: 3 },
+    { name: 'Combo Casal', description: 'Pipoca Média + 2 Refrigerantes Pequenos', price: 32.00, items: 3 },
+    { name: 'Combo Premium', description: 'Pipoca Grande + 2 Refrigerantes Grandes + Nachos', price: 55.00, items: 4 },
+    { name: 'Combo Econômico', description: 'Pipoca Pequena + Refrigerante Pequeno', price: 20.00, items: 2 },
+    { name: 'Combo Mega', description: 'Pipoca Mega + 3 Refrigerantes Grandes', price: 60.00, items: 4 },
+    { name: 'Combo Hot Dog', description: 'Hot Dog + Refrigerante Médio', price: 24.00, items: 2 },
+    { name: 'Combo Kids', description: 'Pipoca Pequena + Suco Natural + Chocolate', price: 28.00, items: 3 },
+    { name: 'Combo Lanche', description: 'Hambúrguer + Batata Frita + Refrigerante Grande', price: 40.00, items: 3 },
+    { name: 'Combo Deluxe', description: 'Pipoca Grande + 2 Milk Shakes + Nachos', price: 65.00, items: 4 }
+];
+
 export const SnackComboManager = () => {
     const [snacks, setSnacks] = useState<SnackCombo[]>([]);
     const [loading, setLoading] = useState(true);
@@ -130,44 +174,115 @@ export const SnackComboManager = () => {
                             <Row className="g-3">
                                 <Col md={6}>
                                     <Form.Group>
-                                        <Form.Label>Nome *</Form.Label>
-                                        <Form.Control
-                                            type="text"
-                                            value={formData.name}
-                                            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                                        <Form.Label>Categoria *</Form.Label>
+                                        <Form.Select
+                                            value={formData.category}
+                                            onChange={(e) => {
+                                                const category = e.target.value as SnackCategory;
+                                                setFormData({ 
+                                                    ...formData, 
+                                                    category,
+                                                    name: '',
+                                                    description: '',
+                                                    unitPrice: 0,
+                                                    itemsQuantity: 1
+                                                });
+                                            }}
                                             required
-                                        />
+                                        >
+                                            <option value="">Selecione a categoria</option>
+                                            <option value="comida">🍿 Lanche</option>
+                                            <option value="bebida">🥤 Bebida</option>
+                                            <option value="combo">🎁 Combo</option>
+                                        </Form.Select>
                                     </Form.Group>
                                 </Col>
 
                                 <Col md={6}>
                                     <Form.Group>
-                                        <Form.Label>Categoria *</Form.Label>
+                                        <Form.Label>
+                                            {formData.category === 'comida' && 'Escolha o Lanche *'}
+                                            {formData.category === 'bebida' && 'Escolha a Bebida *'}
+                                            {formData.category === 'combo' && 'Escolha o Combo *'}
+                                            {!formData.category && 'Selecione primeiro a categoria'}
+                                        </Form.Label>
                                         <Form.Select
-                                            value={formData.category}
-                                            onChange={(e) => setFormData({ ...formData, category: e.target.value as SnackCategory })}
+                                            value={formData.name}
+                                            onChange={(e) => {
+                                                const selectedName = e.target.value;
+                                                let selectedItem;
+                                                
+                                                if (formData.category === 'comida') {
+                                                    selectedItem = SNACK_OPTIONS.find(s => s.name === selectedName);
+                                                    if (selectedItem) {
+                                                        setFormData({
+                                                            ...formData,
+                                                            name: selectedItem.name,
+                                                            unitPrice: selectedItem.price,
+                                                            itemsQuantity: 1,
+                                                            description: `Lanche: ${selectedItem.name}`
+                                                        });
+                                                    }
+                                                } else if (formData.category === 'bebida') {
+                                                    selectedItem = DRINK_OPTIONS.find(d => d.name === selectedName);
+                                                    if (selectedItem) {
+                                                        setFormData({
+                                                            ...formData,
+                                                            name: selectedItem.name,
+                                                            unitPrice: selectedItem.price,
+                                                            itemsQuantity: 1,
+                                                            description: `Bebida: ${selectedItem.name}`
+                                                        });
+                                                    }
+                                                } else if (formData.category === 'combo') {
+                                                    selectedItem = COMBO_OPTIONS.find(c => c.name === selectedName);
+                                                    if (selectedItem) {
+                                                        setFormData({
+                                                            ...formData,
+                                                            name: selectedItem.name,
+                                                            unitPrice: selectedItem.price,
+                                                            itemsQuantity: 1,
+                                                            description: selectedItem.description
+                                                        });
+                                                    }
+                                                }
+                                            }}
                                             required
+                                            disabled={!formData.category}
                                         >
-                                            <option value="bebida">Bebida</option>
-                                            <option value="comida">Comida</option>
-                                            <option value="combo">Combo</option>
+                                            <option value="">Selecione uma opção</option>
+                                            {formData.category === 'comida' && SNACK_OPTIONS.map(snack => (
+                                                <option key={snack.name} value={snack.name}>
+                                                    {snack.name} - R$ {snack.price.toFixed(2)}
+                                                </option>
+                                            ))}
+                                            {formData.category === 'bebida' && DRINK_OPTIONS.map(drink => (
+                                                <option key={drink.name} value={drink.name}>
+                                                    {drink.name} - R$ {drink.price.toFixed(2)}
+                                                </option>
+                                            ))}
+                                            {formData.category === 'combo' && COMBO_OPTIONS.map(combo => (
+                                                <option key={combo.name} value={combo.name}>
+                                                    {combo.name} - R$ {combo.price.toFixed(2)}
+                                                </option>
+                                            ))}
                                         </Form.Select>
                                     </Form.Group>
                                 </Col>
 
-                                <Col md={12}>
-                                    <Form.Group>
-                                        <Form.Label>Descrição</Form.Label>
-                                        <Form.Control
-                                            as="textarea"
-                                            rows={2}
-                                            value={formData.description}
-                                            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                                        />
-                                    </Form.Group>
-                                </Col>
+                                {formData.description && formData.name && (
+                                    <Col md={12}>
+                                        <Alert variant="info" className="mb-0">
+                                            <strong>
+                                                {formData.category === 'combo' ? '📦 Itens do Combo:' : 
+                                                 formData.category === 'comida' ? '🍿 Lanche Selecionado:' :
+                                                 '🥤 Bebida Selecionada:'}
+                                            </strong> {formData.description}
+                                        </Alert>
+                                    </Col>
+                                )}
 
-                                <Col md={4}>
+                                <Col md={3}>
                                     <Form.Group>
                                         <Form.Label>Preço Unitário (R$) *</Form.Label>
                                         <Form.Control
@@ -177,13 +292,17 @@ export const SnackComboManager = () => {
                                             value={formData.unitPrice}
                                             onChange={(e) => setFormData({ ...formData, unitPrice: parseFloat(e.target.value) || 0 })}
                                             required
+                                            readOnly
                                         />
+                                        <Form.Text className="text-muted">
+                                            Preço por unidade
+                                        </Form.Text>
                                     </Form.Group>
                                 </Col>
 
-                                <Col md={4}>
+                                <Col md={3}>
                                     <Form.Group>
-                                        <Form.Label>Quantidade de Itens *</Form.Label>
+                                        <Form.Label>Quantidade *</Form.Label>
                                         <Form.Control
                                             type="number"
                                             min="1"
@@ -192,12 +311,27 @@ export const SnackComboManager = () => {
                                             required
                                         />
                                         <Form.Text className="text-muted">
-                                            Ex: Combo com 1 pipoca + 1 refrigerante = 2 itens
+                                            Quantas unidades?
                                         </Form.Text>
                                     </Form.Group>
                                 </Col>
 
-                                <Col md={4}>
+                                <Col md={3}>
+                                    <Form.Group>
+                                        <Form.Label>Total (R$)</Form.Label>
+                                        <Form.Control
+                                            type="text"
+                                            value={`R$ ${((formData.unitPrice || 0) * (formData.itemsQuantity || 1)).toFixed(2)}`}
+                                            readOnly
+                                            style={{ fontWeight: 'bold', backgroundColor: '#e9ecef' }}
+                                        />
+                                        <Form.Text className="text-muted">
+                                            Valor total
+                                        </Form.Text>
+                                    </Form.Group>
+                                </Col>
+
+                                <Col md={3}>
                                     <Form.Group>
                                         <Form.Label>Disponível</Form.Label>
                                         <Form.Check
