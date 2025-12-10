@@ -1,25 +1,21 @@
 import { Container, Row, Col } from 'react-bootstrap';
-import { SalesForm } from '../components/sales/SalesForm';
+import { CompleteOrderForm } from '../components/orders/CompleteOrderForm';
 import { SalesList } from '../components/sales/SalesList';
 import { useSales } from '../hooks/useSales';
 import { useSessions } from '../hooks/useSessions';
-import { Sale } from '../types';
+import { useRooms } from '../hooks/useRooms';
 
 export const SalesPage = () => {
-    const { sales, addSale } = useSales();
+    const { sales } = useSales();
     const { sessions } = useSessions();
-
-    const handleAddSale = (sale: Sale) => {
-        addSale(sale);
-        alert('Venda realizada com sucesso!');
-    };
+    const { rooms } = useRooms();
 
     return (
         <Container fluid className="py-4">
             <Row>
                 <Col lg={10} className="offset-lg-1">
-                    <h1 className="mb-4">🎫 Vendas</h1>
-                    <SalesForm onSubmit={handleAddSale} sessions={sessions} />
+                    <h1 className="mb-4">🎫 Vendas e Pedidos</h1>
+                    <CompleteOrderForm sessions={sessions} rooms={rooms} />
                     <SalesList sales={sales} />
                 </Col>
             </Row>

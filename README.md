@@ -1,118 +1,200 @@
-# 🎬 Projeto Cinema
+# 🎬 Sistema de Cinema
 
-Sistema de gerenciamento de cinema desenvolvido com **React**, **TypeScript**, **Bootstrap** e **SCSS**.
+Sistema completo de gerenciamento de cinema desenvolvido com React, TypeScript e Supabase.
 
-## 📋 Funcionalidades
+## ✨ Funcionalidades
 
-- **Filmes**: Cadastro e gerenciamento de filmes com informações detalhadas
-- **Salas**: Configuração de salas de cinema  
-- **Sessões**: Criação de sessões de exibição vinculando filmes e salas
-- **Vendas**: Sistema de venda de ingressos
+- 🎥 **Filmes** - CRUD completo com detalhes
+- 🏛️ **Salas** - Gerenciamento com layout de poltronas
+- 📅 **Sessões** - Agendamento com validações
+- 🎫 **Ingressos** - Inteira/Meia com validações de proporção
+- 🪑 **Poltronas** - Seleção visual interativa em tempo real
+- 🍿 **Lanches** - CRUD de combos e produtos
+- 📦 **Pedidos** - Sistema completo (ingressos + lanches)
 
-## 🚀 Tecnologias Utilizadas
-
-- **React 18** - Biblioteca para construção de interfaces com JSX/TSX
-- **TypeScript** - Superset JavaScript com tipagem estática
-- **Vite** - Build tool e dev server moderno
-- **React Router** - Navegação entre páginas
-- **React Bootstrap** - Componentes UI baseados em Bootstrap 5
-- **SCSS/Sass** - Pré-processador CSS para estilos avançados
-- **LocalStorage** - Persistência de dados no navegador
-
-## 📁 Estrutura do Projeto
-
-```
-src/
-├── components/          # Componentes React reutilizáveis
-│   ├── layout/         # Layout components
-│   │   ├── Navbar/
-│   │   │   ├── Navbar.tsx
-│   │   │   └── Navbar.scss
-│   │   ├── Footer/
-│   │   │   ├── Footer.tsx
-│   │   │   └── Footer.scss
-│   │   └── Layout.tsx
-│   ├── films/          # Film components
-│   ├── rooms/          # Room components
-│   ├── sessions/       # Session components
-│   └── sales/          # Sales components
-├── pages/              # Páginas da aplicação
-│   ├── HomePage/
-│   │   ├── HomePage.tsx
-│   │   └── HomePage.scss
-│   ├── FilmsPage/
-│   │   ├── FilmsPage.tsx
-│   │   └── FilmsPage.scss
-│   └── ... (outras páginas)
-├── hooks/              # Custom React hooks
-├── services/           # Business logic e storage
-├── types/              # TypeScript type definitions
-├── styles/             # Global styles
-├── App.tsx             # Root component com rotas
-└── main.tsx            # Entry point
-```
-
-**Arquitetura**: Cada componente/página possui:
-- `.tsx` - Componente React com JSX/TSX embutido
-- `.scss` - Estilos SCSS separados
-
-## 🛠️ Instalação e Execução
-
-### Pré-requisitos
-- Node.js 16+ instalado
-- npm ou yarn
-
-### Instalação
+## 🚀 Início Rápido
 
 ```bash
 # Instalar dependências
 npm install
-```
 
-### Desenvolvimento
+# Configurar .env
+VITE_SUPABASE_URL=https://seu-projeto.supabase.co
+VITE_SUPABASE_ANON_KEY=sua-chave-anonima
 
-```bash
-# Iniciar servidor de desenvolvimento
+# Executar supabase-schema.sql no Supabase Dashboard
+
+# Iniciar aplicação
 npm run dev
 ```
 
-A aplicação estará disponível em `http://localhost:5173`
+## 📚 Documentação Completa
 
-### Build de Produção
+Para documentação detalhada, consulte: **[DOCUMENTATION.md](./DOCUMENTATION.md)**
 
-```bash
-# Criar build otimizada
-npm run build
+Inclui:
+- Estrutura completa do projeto
+- Schema do banco de dados
+- Componentes React
+- Serviços e regras de negócio
+- Fluxo de uso
+- Exemplos de código
+- Guia de deploy
 
-# Visualizar build localmente
-npm run preview
+## 📁 Estrutura
+
+```
+src/
+├── components/     # Componentes React
+├── pages/          # Páginas da aplicação
+├── services/       # Lógica de negócio
+├── hooks/          # Custom hooks
+├── types/          # TypeScript types
+└── lib/            # Configurações
 ```
 
-## 💾 Armazenamento de Dados
+## 🎯 Fluxo Básico
 
-Os dados são armazenados localmente usando **localStorage**:
+1. Selecionar sessão
+2. Informar dados do cliente
+3. Escolher ingressos (Inteira/Meia)
+4. Selecionar poltronas no mapa
+5. Adicionar lanches (opcional)
+6. Escolher forma de pagamento
+7. Confirmar pedido
 
-- `cinema_films` - Lista de filmes
-- `cinema_rooms` - Lista de salas
-- `sessoes` - Lista de sessões
-- `vendas` - Lista de vendas
+## 📊 Exemplo de Uso
 
-## 📝 Como Usar
+```typescript
+import { OrderService } from './services/order.service';
 
-1. **Cadastrar Filmes**: Página "Filmes" → Preencher formulário
-2. **Configurar Salas**: Página "Salas" → Cadastrar salas do cinema
-3. **Criar Sessões**: Página "Sessões" → Vincular filme + sala + horário
-4. **Vender Ingressos**: Página "Vendas" → Selecionar sessão + dados cliente
+const order = await OrderService.createOrder({
+    customerName: 'João Silva',
+    customerEmail: 'joao@email.com',
+    sessionId: 'uuid-da-sessao',
+    sessionPrice: 25.00,
+    ticketQuantities: { inteira: 2, meia: 1 },
+    selectedSeats: ['A5', 'A6', 'A7'],
+    snacks: [
+        { snackComboId: 'uuid-combo', quantity: 2, unitPrice: 30.00 }
+    ],
+    paymentMethod: 'credito'
+});
+```
 
-## 🔄 Migração da Versão Anterior
+## 🗄️ Banco de Dados
 
-Projeto refatorado de HTML/JavaScript vanilla para React + TypeScript com:
-- Componentes modulares e reutilizáveis
-- Tipagem forte com TypeScript
-- Estilos SCSS organizados por componente
-- Navegação com React Router
-- Estado gerenciado com custom hooks
+Principais tabelas:
+- `cinemas` - Informações do cinema
+- `films` - Catálogo de filmes
+- `rooms` - Salas de exibição
+- `sessions` - Sessões programadas
+- `tickets` - Ingressos individuais
+- `snack_combos` - Lanches e combos
+- `orders` - Pedidos completos
+- `order_snacks` - Itens de lanche
 
-## 📄 Licença
+## 🚀 Scripts
 
-ISC
+```bash
+npm run dev      # Desenvolvimento
+npm run build    # Build para produção
+npm run preview  # Preview da build
+npm run lint     # Linter
+```
+
+## 📚 Tecnologias
+
+- React 18
+- TypeScript
+- Vite
+- Supabase
+- React Router
+- React Bootstrap
+- SCSS
+    
+    return <div>Poltronas ocupadas: {occupiedSeats.join(', ')}</div>;
+}
+```
+
+## 🧪 Validações
+
+### Ingressos
+- ✅ Máximo de 50% de meias-entradas
+- ✅ Pelo menos 1 ingresso inteiro se houver meias
+- ✅ Mínimo de 1 ingresso total
+
+### Poltronas
+- ✅ Quantidade selecionada = Quantidade de ingressos
+- ✅ Poltrona não pode estar ocupada
+- ✅ Constraint única no banco (uma poltrona por sessão)
+
+### Sessões
+- ✅ Horário entre 13h e 21h
+- ✅ Sem conflitos de sala/horário
+- ✅ Apenas sessões futuras
+
+## 🛠️ Tecnologias
+
+- **Frontend:** React 18 + TypeScript
+- **UI:** React Bootstrap
+- **Backend:** Supabase (PostgreSQL)
+- **Build:** Vite
+- **Estilo:** CSS Modules
+
+## 📚 Documentação
+
+- [Documentação Técnica Completa](./DOCUMENTACAO-TECNICA.md)
+- Schema do banco: `supabase-schema.sql`
+- Tipos TypeScript: `src/types/index.ts`
+
+## 🎨 Screenshots
+
+### Mapa de Poltronas
+```
+         🎬 TELA
+  A  [1][2][3][●][●][●][7][8][9][10]
+  B  [1][2][3][4][5][6][7][8][9][10]
+  C  [1][2][3][4][5][6][7][8][9][10]
+  
+  🟢 Disponível  🔵 Selecionada  🔴 Ocupada
+```
+
+### Resumo do Pedido
+```
+📊 Resumo do Pedido:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🎫 Ingressos:
+  • 2x Inteira - R$ 50,00
+  • 1x Meia - R$ 12,50
+  • Poltronas: A5, A6, A7
+  Subtotal Ingressos: R$ 62,50
+
+🍿 Lanches:
+  • 2x Combo Pipoca + Refri - R$ 60,00
+  Subtotal Lanches: R$ 60,00
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+💰 TOTAL: R$ 122,50
+```
+
+## 🤝 Contribuindo
+
+1. Fork o projeto
+2. Crie uma branch (`git checkout -b feature/nova-funcionalidade`)
+3. Commit suas mudanças (`git commit -m 'Adiciona nova funcionalidade'`)
+4. Push para a branch (`git push origin feature/nova-funcionalidade`)
+5. Abra um Pull Request
+
+## 📝 Licença
+
+Este projeto está sob a licença MIT.
+
+## 👨‍💻 Autor
+
+Desenvolvido com ❤️ por Eduardo Sousa
+
+---
+
+**Versão:** 2.0.0  
+**Última Atualização:** 09/12/2025

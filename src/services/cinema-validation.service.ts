@@ -207,7 +207,9 @@ export class CinemaValidationService {
     }
 
     /**
-     * Valida se a data da sessão é posterior à data de lançamento do filme
+     * Valida se a data da sessão está dentro do período válido:
+     * - Não pode ser ANTES do lançamento do filme
+     * - Não pode ser DEPOIS de 1 ano do lançamento
      */
     static validateSessionReleaseDate(
         sessionDatetime: string,
@@ -220,11 +222,25 @@ export class CinemaValidationService {
         sessionDate.setHours(0, 0, 0, 0);
         releaseDate.setHours(0, 0, 0, 0);
 
+        // Verifica se é ANTES do lançamento
         if (sessionDate < releaseDate) {
             const releaseDateFormatted = releaseDate.toLocaleDateString('pt-BR');
             return {
                 isValid: false,
                 message: `A sessão não pode ser antes da data de lançamento do filme (${releaseDateFormatted})`
+            };
+        }
+
+        // Calcula 1 ano após o lançamento
+        const oneYearAfterRelease = new Date(releaseDate);
+        oneYearAfterRelease.setFullYear(oneYearAfterRelease.getFullYear() + 1);
+
+        // Verifica se passou de 1 ano do lançamento
+        if (sessionDate > oneYearAfterRelease) {
+            const expirationDate = oneYearAfterRelease.toLocaleDateString('pt-BR');
+            return {
+                isValid: false,
+                message: `O filme não está mais em cartaz. Período válido: até ${expirationDate} (1 ano após lançamento)`
             };
         }
 
