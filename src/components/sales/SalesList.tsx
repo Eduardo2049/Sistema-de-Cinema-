@@ -1,5 +1,6 @@
 import { Card, ListGroup, Badge } from 'react-bootstrap';
 import { Sale } from '../../types';
+import { TicketPricingService } from '../../services/ticket-pricing.service';
 
 interface SalesListProps {
     sales: Sale[];
@@ -31,9 +32,29 @@ export const SalesList = ({ sales }: SalesListProps) => {
                                         Cliente: {sale.customerName} ({sale.customerEmail})
                                     </p>
                                     <div className="small text-muted">
-                                        <Badge bg="primary" className="me-1">🎫 {sale.ticketQuantity} ingresso(s)</Badge>
-                                        <Badge bg="success" className="me-1">💰 R$ {sale.totalPrice.toFixed(2)}</Badge>
-                                        <Badge bg="info">
+                                        {/* Exibir detalhes dos tipos de ingresso se disponível */}
+                                        {sale.ticketInteiraQty !== undefined && sale.ticketMeiaQty !== undefined ? (
+                                            <>
+                                                {sale.ticketInteiraQty > 0 && (
+                                                    <Badge bg="primary" className="me-1">
+                                                        🎫 {sale.ticketInteiraQty} Inteira(s)
+                                                    </Badge>
+                                                )}
+                                                {sale.ticketMeiaQty > 0 && (
+                                                    <Badge bg="info" className="me-1">
+                                                        🎫 {sale.ticketMeiaQty} Meia(s)
+                                                    </Badge>
+                                                )}
+                                            </>
+                                        ) : (
+                                            <Badge bg="primary" className="me-1">
+                                                🎫 {sale.ticketQuantity} ingresso(s)
+                                            </Badge>
+                                        )}
+                                        <Badge bg="success" className="me-1">
+                                            💰 {TicketPricingService.formatPrice(sale.totalPrice)}
+                                        </Badge>
+                                        <Badge bg="secondary">
                                             📅 {new Date(sale.purchaseDate).toLocaleString('pt-BR')}
                                         </Badge>
                                     </div>

@@ -1,16 +1,19 @@
 import { useState, FormEvent, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Form, Button, Row, Col, Card, Alert } from 'react-bootstrap';
-import { Sale, Session, TicketQuantities } from '../../types';
+import { Sale, Session, TicketQuantities, Room } from '../../types';
 import { CinemaValidationService } from '../../services/cinema-validation.service';
 import { TicketPricingService } from '../../services/ticket-pricing.service';
+import { SeatMap } from '../seats/SeatMap';
+import { useOccupiedSeats } from '../../hooks/useOccupiedSeats';
 
-interface SalesFormProps {
-    onSubmit: (sale: Sale) => void;
+interface SalesFormWithSeatsProps {
+    onSubmit: (sale: Sale, selectedSeats?: string[]) => void;
     sessions: Session[];
+    rooms: Room[];
 }
 
-export const SalesForm = ({ onSubmit, sessions }: SalesFormProps) => {
+export const SalesFormWithSeats = ({ onSubmit, sessions, rooms }: SalesFormWithSeatsProps) => {
     const [searchParams] = useSearchParams();
     const preselectedSession = searchParams.get('sessao');
 
@@ -24,7 +27,12 @@ export const SalesForm = ({ onSubmit, sessions }: SalesFormProps) => {
         } as TicketQuantities
     });
 
-    // Filtrar apenas sessões disponíveis (futuras e no horário de funcionamento)
+    const [selectedSeats, setSelectedSeats] = useState<string[]>([]);
+
+    // Buscar poltronas ocupadas
+    const { occupiedSeats, loading: loadingSeats } = useOccupiedSeats(formData.sessionId || null);
+
+    // Filtrar apenas sessões disponíveis
     const availableSessions = useMemo(() => {
         return CinemaValidationService.filterAvailableSessions(sessions);
     }, [sessions]);
@@ -34,11 +42,50 @@ export const SalesForm = ({ onSubmit, sessions }: SalesFormProps) => {
         return availableSessions.some(s => s.id === sessionId);
     };
 
+    // Obter sala da sessão selecionada
+    const currentSession = useMemo(() => {
+        return sessions.find(s => s.id === formData.sessionId);
+    }, [formData.sessionId, sessions]);
+
+    const currentRoom = useMemo(() => {
+        if (!currentSession) return null;
+        return rooms.find(r => r.id === currentSession.roomId);
+    }, [currentSession, rooms]);
+
+    // Total de ingressos
+    const totalTickets = useMemo(() => {
+        return TicketPricingService.getTotalTickets(formData.ticketQuantities);
+    }, [formData.ticketQuantities]);
+
     useEffect(() => {
         if (preselectedSession) {
             setFormData(prev => ({ ...prev, sessionId: preselectedSession }));
         }
     }, [preselectedSession]);
+
+    // Resetar poltronas selecionadas quando mudar sessão
+    useEffect(() => {
+        setSelectedSeats([]);
+    }, [formData.sessionId]);
+
+    // Sincronizar poltronas selecionadas com quantidade de ingressos
+    useEffect(() => {
+        if (selectedSeats.length > totalTickets) {
+            setSelectedSeats(prev => prev.slice(0, totalTickets));
+        }
+    }, [totalTickets, selectedSeats.length]);
+
+    const handleSeatSelect = (seatId: string) => {
+        setSelectedSeats(prev => {
+            if (prev.includes(seatId)) {
+                return prev.filter(id => id !== seatId);
+            }
+            if (prev.length >= totalTickets) {
+                return prev;
+            }
+            return [...prev, seatId];
+        });
+    };
 
     const handleSubmit = (e: FormEvent) => {
         e.preventDefault();
@@ -60,7 +107,7 @@ export const SalesForm = ({ onSubmit, sessions }: SalesFormProps) => {
             return;
         }
 
-        // Validar ingressos usando o serviço de pricing
+        // Validar ingressos
         const ticketValidation = TicketPricingService.validateTicketSale(
             session.price,
             formData.ticketQuantities
@@ -71,25 +118,19 @@ export const SalesForm = ({ onSubmit, sessions }: SalesFormProps) => {
             return;
         }
 
+        // Validar seleção de poltronas (se habilitado)
+        if (currentRoom?.seatLayout) {
+            if (selectedSeats.length !== totalTickets) {
+                alert(`Por favor, selecione ${totalTickets} poltrona(s) no mapa.`);
+                return;
+            }
+        }
+
         // Calcular preços
         const pricing = TicketPricingService.calculateTotalPrice(
             session.price,
             formData.ticketQuantities
         );
-
-        const totalTickets = TicketPricingService.getTotalTickets(formData.ticketQuantities);
-
-        // Avisar se quantidade for muito alta
-        if (totalTickets > 100) {
-            const confirmacao = window.confirm(
-                `Atenção! Você está tentando comprar ${totalTickets} ingressos.\n\n` +
-                `Isso parece ser uma quantidade muito alta.\n\n` +
-                `Deseja continuar mesmo assim?`
-            );
-            if (!confirmacao) {
-                return;
-            }
-        }
 
         const sessionInfo = `${session.movieTitle} - ${session.datetime}`;
 
@@ -106,7 +147,7 @@ export const SalesForm = ({ onSubmit, sessions }: SalesFormProps) => {
             purchaseDate: new Date().toISOString()
         };
 
-        onSubmit(sale);
+        onSubmit(sale, selectedSeats.length > 0 ? selectedSeats : undefined);
 
         // Reset form
         setFormData({
@@ -118,6 +159,7 @@ export const SalesForm = ({ onSubmit, sessions }: SalesFormProps) => {
                 meia: 0
             }
         });
+        setSelectedSeats([]);
     };
 
     return (
@@ -142,7 +184,6 @@ export const SalesForm = ({ onSubmit, sessions }: SalesFormProps) => {
                                     onChange={(e) => setFormData({ ...formData, sessionId: e.target.value })}
                                     required
                                     disabled={sessions.length === 0}
-                                    style={{ color: formData.sessionId && !isSessionAvailable(formData.sessionId || '') ? '#6c757d' : 'inherit' }}
                                 >
                                     <option value="">Selecione uma sessão</option>
                                     {sessions.map((session) => {
@@ -153,10 +194,6 @@ export const SalesForm = ({ onSubmit, sessions }: SalesFormProps) => {
                                             <option
                                                 key={session.id}
                                                 value={session.id}
-                                                style={{
-                                                    color: isAvailable ? '#6f42c1' : '#6c757d',
-                                                    fontWeight: isAvailable ? 'bold' : 'normal'
-                                                }}
                                             >
                                                 {isAvailable ? '🟣' : '⚪'} {session.movieTitle} - {date} às {time} - Sala {session.roomName} - R$ {session.price.toFixed(2)}
                                             </option>
@@ -207,9 +244,9 @@ export const SalesForm = ({ onSubmit, sessions }: SalesFormProps) => {
                                         }
                                     })}
                                 />
-                                {formData.sessionId && sessions.find(s => s.id === formData.sessionId) && (
+                                {formData.sessionId && currentSession && (
                                     <Form.Text className="text-muted">
-                                        {TicketPricingService.formatPrice(sessions.find(s => s.id === formData.sessionId)!.price)} cada
+                                        {TicketPricingService.formatPrice(currentSession.price)} cada
                                     </Form.Text>
                                 )}
                             </Form.Group>
@@ -230,15 +267,45 @@ export const SalesForm = ({ onSubmit, sessions }: SalesFormProps) => {
                                         }
                                     })}
                                 />
-                                {formData.sessionId && sessions.find(s => s.id === formData.sessionId) && (
+                                {formData.sessionId && currentSession && (
                                     <Form.Text className="text-muted">
-                                        {TicketPricingService.formatPrice(sessions.find(s => s.id === formData.sessionId)!.price * 0.5)} cada (50% de desconto)
+                                        {TicketPricingService.formatPrice(currentSession.price * 0.5)} cada (50% de desconto)
                                     </Form.Text>
                                 )}
                             </Form.Group>
                         </Col>
 
-                        {formData.sessionId && sessions.find(s => s.id === formData.sessionId) && (
+                        {/* Mapa de Poltronas */}
+                        {formData.sessionId && currentRoom?.seatLayout && (
+                            <Col md={12}>
+                                <Card className="mt-3">
+                                    <Card.Header>
+                                        <strong>🪑 Seleção de Poltronas</strong>
+                                    </Card.Header>
+                                    <Card.Body>
+                                        {loadingSeats ? (
+                                            <div className="text-center py-4">
+                                                <div className="spinner-border text-primary" role="status">
+                                                    <span className="visually-hidden">Carregando...</span>
+                                                </div>
+                                                <p className="mt-2 text-muted">Carregando mapa de poltronas...</p>
+                                            </div>
+                                        ) : (
+                                            <SeatMap
+                                                roomLayout={currentRoom.seatLayout}
+                                                occupiedSeats={occupiedSeats}
+                                                selectedSeats={selectedSeats}
+                                                onSeatSelect={handleSeatSelect}
+                                                maxSeats={totalTickets}
+                                            />
+                                        )}
+                                    </Card.Body>
+                                </Card>
+                            </Col>
+                        )}
+
+                        {/* Resumo da Compra */}
+                        {formData.sessionId && currentSession && (
                             <Col md={12}>
                                 <Alert variant="info" className="mb-0">
                                     <strong>📊 Resumo da Compra:</strong>
@@ -247,7 +314,7 @@ export const SalesForm = ({ onSubmit, sessions }: SalesFormProps) => {
                                             <li>
                                                 {formData.ticketQuantities.inteira} ingresso(s) inteiro(s): {' '}
                                                 {TicketPricingService.formatPrice(
-                                                    sessions.find(s => s.id === formData.sessionId)!.price * formData.ticketQuantities.inteira
+                                                    currentSession.price * formData.ticketQuantities.inteira
                                                 )}
                                             </li>
                                         )}
@@ -255,20 +322,25 @@ export const SalesForm = ({ onSubmit, sessions }: SalesFormProps) => {
                                             <li>
                                                 {formData.ticketQuantities.meia} meia(s)-entrada(s): {' '}
                                                 {TicketPricingService.formatPrice(
-                                                    sessions.find(s => s.id === formData.sessionId)!.price * 0.5 * formData.ticketQuantities.meia
+                                                    currentSession.price * 0.5 * formData.ticketQuantities.meia
                                                 )}
                                             </li>
                                         )}
                                         {(formData.ticketQuantities.inteira > 0 || formData.ticketQuantities.meia > 0) && (
                                             <>
                                                 <li className="fw-bold mt-2 text-primary">
-                                                    Total de Ingressos: {TicketPricingService.getTotalTickets(formData.ticketQuantities)}
+                                                    Total de Ingressos: {totalTickets}
                                                 </li>
+                                                {selectedSeats.length > 0 && (
+                                                    <li className="text-primary">
+                                                        Poltronas: {selectedSeats.join(', ')}
+                                                    </li>
+                                                )}
                                                 <li className="fw-bold text-success">
                                                     Valor Total: {' '}
                                                     {TicketPricingService.formatPrice(
                                                         TicketPricingService.calculateTotalPrice(
-                                                            sessions.find(s => s.id === formData.sessionId)!.price,
+                                                            currentSession.price,
                                                             formData.ticketQuantities
                                                         ).total
                                                     )}
@@ -278,7 +350,7 @@ export const SalesForm = ({ onSubmit, sessions }: SalesFormProps) => {
                                                         💰 Economia com meia-entrada: {' '}
                                                         {TicketPricingService.formatPrice(
                                                             TicketPricingService.calculateTotalDiscount(
-                                                                sessions.find(s => s.id === formData.sessionId)!.price,
+                                                                currentSession.price,
                                                                 formData.ticketQuantities
                                                             )
                                                         )}
