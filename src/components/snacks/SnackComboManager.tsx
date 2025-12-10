@@ -231,7 +231,7 @@ export const SnackComboManager = () => {
                 </div>
             ) : snacks.length === 0 ? (
                 <Alert variant="info">
-                    <strong>ℹ️ Nenhum lanche cadastrado</strong>
+                    <strong>Nenhum lanche cadastrado</strong>
                     <p className="mb-0">Clique em "Novo Lanche/Combo" para começar.</p>
                 </Alert>
             ) : (

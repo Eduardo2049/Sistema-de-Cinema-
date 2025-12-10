@@ -15,7 +15,7 @@ export const Navbar = () => {
                         <Nav.Link as={Link} to="/filmes">Filmes</Nav.Link>
                         <Nav.Link as={Link} to="/sessoes">Sessões</Nav.Link>
                         <Nav.Link as={Link} to="/salas">Salas</Nav.Link>
-                        <Nav.Link as={Link} to="/lanches">🍿 Lanches</Nav.Link>
+                        <Nav.Link as={Link} to="/lanches">Lanches</Nav.Link>
                         <Nav.Link as={Link} to="/vendas">Vendas</Nav.Link>
                     </Nav>
                 </BootstrapNavbar.Collapse>
