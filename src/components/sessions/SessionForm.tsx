@@ -38,19 +38,26 @@ export const SessionForm = ({ onSubmit, films, rooms }: SessionFormProps) => {
             return;
         }
 
-        // Validar se a sessão é após a data de lançamento do filme
+        // Validar se a sessão é após a data de lançamento do filme (APENAS AVISO)
         const sessionDate = new Date(formData.datetime);
         const releaseDate = new Date(selectedFilm.releaseDate);
 
         if (sessionDate < releaseDate) {
             const releaseDateFormatted = releaseDate.toLocaleDateString('pt-BR');
-            setErrorMessage(
-                `Não é possível criar uma sessão antes da data de lançamento do filme!\n\n` +
+            const sessionDateFormatted = sessionDate.toLocaleDateString('pt-BR');
+            
+            // Apenas alertar, mas permitir continuar
+            const continuar = window.confirm(
+                `⚠️ AVISO: Sessão antes do lançamento!\n\n` +
                 `Filme: ${selectedFilm.title}\n` +
-                `Data de lançamento: ${releaseDateFormatted}\n\n` +
-                `Por favor, escolha uma data igual ou posterior ao lançamento.`
+                `Lançamento: ${releaseDateFormatted}\n` +
+                `Sessão: ${sessionDateFormatted}\n\n` +
+                `Deseja continuar mesmo assim? (útil para testes)`
             );
-            return;
+            
+            if (!continuar) {
+                return;
+            }
         }
 
         const movieTitle = selectedFilm.title;
@@ -139,6 +146,9 @@ export const SessionForm = ({ onSubmit, films, rooms }: SessionFormProps) => {
                                     onChange={(e) => setFormData({ ...formData, datetime: e.target.value })}
                                     required
                                 />
+                                <Form.Text className="text-muted">
+                                    💡 Para aparecer disponível (🟣): deve ser <strong>futura</strong> e entre <strong>13h-21h</strong>
+                                </Form.Text>
                             </Form.Group>
                         </Col>
 

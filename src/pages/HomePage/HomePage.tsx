@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { MdMovie, MdTheaters, MdSchedule, MdConfirmationNumber, MdArrowForward } from 'react-icons/md';
 import { useFilms } from '../../hooks/useFilms';
 import { useRooms } from '../../hooks/useRooms';
-import { useSales } from '../../hooks/useSales';
+import { useOrders } from '../../hooks/useOrders';
 import { useSessions } from '../../hooks/useSessions';
 
 import './HomePage.scss';
@@ -13,7 +13,7 @@ export const HomePage = () => {
     const { films } = useFilms();
     const { rooms } = useRooms();
     const { sessions } = useSessions();
-    const { sales } = useSales();
+    const { orders } = useOrders();
 
     // Dados dos cards com ícones e cores
     const features = [
@@ -53,7 +53,7 @@ export const HomePage = () => {
             description: 'Venda ingressos para as sessões',
             path: '/vendas',
             color: 'danger',
-            count: sales.length,
+            count: orders.length,
             gradient: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
             borderColor: '#43e97b' // Verde do gradiente
         }
@@ -88,8 +88,8 @@ export const HomePage = () => {
                                             <span className="stat-label">Sessões</span>
                                         </div>
                                         <div className="stat-item">
-                                            <span className="stat-number">{sales.length}</span>
-                                            <span className="stat-label">Vendas</span>
+                                            <span className="stat-number">{orders.length}</span>
+                                            <span className="stat-label">Pedidos</span>
                                         </div>
                                     </div>
                                 </div>
