@@ -179,6 +179,38 @@ export class OrderService {
         return this.updateStatus(id, 'cancelado');
     }
 
+    /**
+     * Deletar pedido permanentemente
+     * Nota: Se a constraint ON DELETE CASCADE estiver configurada, 
+     * os tickets e snacks serão deletados automaticamente.
+     * Caso contrário, este método deleta manualmente.
+     */
+    static async deleteOrder(id: string): Promise<void> {
+        // Deletar tickets associados (caso não tenha CASCADE)
+        const { error: ticketsError } = await supabase
+            .from('tickets')
+            .delete()
+            .eq('order_id', id);
+
+        if (ticketsError) throw ticketsError;
+
+        // Deletar lanches associados (já tem CASCADE no schema)
+        const { error: snacksError } = await supabase
+            .from('order_snacks')
+            .delete()
+            .eq('order_id', id);
+
+        if (snacksError) throw snacksError;
+
+        // Deletar pedido
+        const { error: orderError } = await supabase
+            .from('orders')
+            .delete()
+            .eq('id', id);
+
+        if (orderError) throw orderError;
+    }
+
     // ============================================
     // MÉTODOS AUXILIARES
     // ============================================

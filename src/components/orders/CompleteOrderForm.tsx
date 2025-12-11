@@ -38,17 +38,8 @@ export const CompleteOrderForm = ({ sessions, rooms, onOrderCreated }: CompleteO
         name: string;
     }>>([]);
     const [submitting, setSubmitting] = useState(false);
-    const [lastSubmitTime, setLastSubmitTime] = useState<number>(0);
 
     const { occupiedSeats, loading: loadingSeats } = useOccupiedSeats(formData.sessionId || null);
-
-    const availableSessions = useMemo(() => {
-        return CinemaValidationService.filterAvailableSessions(sessions);
-    }, [sessions]);
-
-    const isSessionAvailable = (sessionId: string) => {
-        return availableSessions.some(s => s.id === sessionId);
-    };
 
     const currentSession = useMemo(() => {
         return sessions.find(s => s.id === formData.sessionId);
@@ -108,25 +99,19 @@ export const CompleteOrderForm = ({ sessions, rooms, onOrderCreated }: CompleteO
         });
     };
 
+    const handleClearSeats = () => {
+        if (window.confirm('Deseja realmente limpar todas as poltronas selecionadas?')) {
+            setSelectedSeats([]);
+        }
+    };
+
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
 
-        // Prevenir duplo submit (verificar se já foi enviado nos últimos 3 segundos)
-        const now = Date.now();
-        if (submitting || (now - lastSubmitTime < 3000)) {
-            console.log('Submit já em andamento ou muito recente, ignorando...');
-            return;
-        }
-        
-        setLastSubmitTime(now);
+        if (submitting) return;
 
         if (!formData.sessionId || !formData.customerName || !formData.customerEmail) {
-            alert('Por favor, preencha todos os campos obrigatórios.');
-            return;
-        }
-
-        if (!isSessionAvailable(formData.sessionId)) {
-            alert('A sessão selecionada não está mais disponível.');
+            alert('Preencha todos os campos obrigatórios.');
             return;
         }
 
@@ -136,20 +121,9 @@ export const CompleteOrderForm = ({ sessions, rooms, onOrderCreated }: CompleteO
             return;
         }
 
-        // Validar ingressos
-        const ticketValidation = TicketPricingService.validateTicketSale(
-            session.price,
-            formData.ticketQuantities
-        );
-
-        if (!ticketValidation.isValid) {
-            alert('Erro na validação dos ingressos:\n\n' + ticketValidation.errors.join('\n'));
-            return;
-        }
-
-        // Validar seleção de poltronas (se sala tiver layout)
+        // Validar poltronas se sala tiver layout
         if (currentRoom?.seatLayout && selectedSeats.length !== totalTickets) {
-            alert(`Por favor, selecione ${totalTickets} poltrona(s) no mapa.`);
+            alert(`Selecione ${totalTickets} poltrona(s) no mapa.`);
             return;
         }
 
@@ -172,10 +146,9 @@ export const CompleteOrderForm = ({ sessions, rooms, onOrderCreated }: CompleteO
                 paymentMethod: formData.paymentMethod
             });
 
-            console.log('Pedido criado com sucesso:', order.id);
-            alert(`✅ Pedido criado com sucesso!\n\nPedido #${order.id?.substring(0, 8)}\nTotal: ${OrderService.formatPrice(order.totalAmount)}`);
+            alert(`Pedido criado com sucesso! Total: R$ ${order.totalAmount.toFixed(2)}`);
 
-            // Reset form
+            // Reset
             setFormData({
                 sessionId: '',
                 customerName: '',
@@ -186,13 +159,7 @@ export const CompleteOrderForm = ({ sessions, rooms, onOrderCreated }: CompleteO
             setSelectedSeats([]);
             setSelectedSnacks([]);
 
-            // Aguardar um pouco antes de notificar (evitar race condition)
-            setTimeout(() => {
-                if (onOrderCreated) {
-                    console.log('Notificando atualização da lista...');
-                    onOrderCreated();
-                }
-            }, 500);
+            if (onOrderCreated) onOrderCreated();
 
         } catch (error) {
             console.error('Erro ao criar pedido:', error);
@@ -231,10 +198,9 @@ export const CompleteOrderForm = ({ sessions, rooms, onOrderCreated }: CompleteO
                                     {sessions.map((session) => {
                                         const time = CinemaValidationService.formatSessionTime(session.datetime);
                                         const date = new Date(session.datetime).toLocaleDateString('pt-BR');
-                                        const isAvailable = isSessionAvailable(session.id || '');
                                         return (
                                             <option key={session.id} value={session.id}>
-                                                {isAvailable ? '🟣' : '⚪'} {session.movieTitle} - {date} às {time} - Sala {session.roomName} - R$ {session.price.toFixed(2)}
+                                                {session.movieTitle} - {date} às {time} - Sala {session.roomName} - R$ {session.price.toFixed(2)}
                                             </option>
                                         );
                                     })}
@@ -318,27 +284,22 @@ export const CompleteOrderForm = ({ sessions, rooms, onOrderCreated }: CompleteO
 
                         {/* Mapa de Poltronas */}
                         {formData.sessionId && currentRoom?.seatLayout && (
-                            <Col md={12}>
-                                <Card className="mt-3">
-                                    <Card.Header><strong>🪑 Seleção de Poltronas</strong></Card.Header>
-                                    <Card.Body>
-                                        {loadingSeats ? (
-                                            <div className="text-center py-4">
-                                                <div className="spinner-border text-primary" role="status">
-                                                    <span className="visually-hidden">Carregando...</span>
-                                                </div>
-                                            </div>
-                                        ) : (
-                                            <SeatMap
-                                                roomLayout={currentRoom.seatLayout}
-                                                occupiedSeats={occupiedSeats}
-                                                selectedSeats={selectedSeats}
-                                                onSeatSelect={handleSeatSelect}
-                                                maxSeats={totalTickets}
-                                            />
-                                        )}
-                                    </Card.Body>
-                                </Card>
+                            <Col md={12} className="mt-3">
+                                <h6>🪑 Selecione {totalTickets} Poltrona(s)</h6>
+                                {loadingSeats ? (
+                                    <div className="text-center py-3">
+                                        <div className="spinner-border spinner-border-sm" role="status"></div>
+                                    </div>
+                                ) : (
+                                    <SeatMap
+                                        roomLayout={currentRoom.seatLayout}
+                                        occupiedSeats={occupiedSeats}
+                                        selectedSeats={selectedSeats}
+                                        onSeatSelect={handleSeatSelect}
+                                        onClearSeats={handleClearSeats}
+                                        maxSeats={totalTickets}
+                                    />
+                                )}
                             </Col>
                         )}
 
@@ -423,7 +384,7 @@ export const CompleteOrderForm = ({ sessions, rooms, onOrderCreated }: CompleteO
                                 size="lg"
                                 disabled={submitting || !formData.sessionId}
                             >
-                                {submitting ? '⏳ Processando...' : '💳 Confirmar Pedido'}
+                                {submitting ? 'Processando...' : 'Confirmar Pedido'}
                             </Button>
                         </Col>
                     </Row>

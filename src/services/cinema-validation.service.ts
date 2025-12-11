@@ -6,14 +6,14 @@ import { Session } from '../types';
 export class CinemaValidationService {
 
     /**
-     * Valida se uma sessão está dentro do horário de funcionamento (13h - 21h)
+     * Valida se uma sessão está dentro do horário de funcionamento (0h - 22h)
      */
     static isValidSessionTime(datetime: string): boolean {
         const sessionDate = new Date(datetime);
         const hours = sessionDate.getHours();
 
-        // Horário de funcionamento: 13h às 21h
-        return hours >= 13 && hours < 21;
+        // Horário de funcionamento: 0h às 22h
+        return hours >= 0 && hours < 22;
     }
 
     /**
