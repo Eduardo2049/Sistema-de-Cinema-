@@ -6,18 +6,7 @@ import { Session } from '../types';
 export class CinemaValidationService {
 
     /**
-     * Valida se uma sessão está dentro do horário de funcionamento (0h - 22h)
-     */
-    static isValidSessionTime(datetime: string): boolean {
-        const sessionDate = new Date(datetime);
-        const hours = sessionDate.getHours();
-
-        // Horário de funcionamento: 0h às 22h
-        return hours >= 0 && hours < 22;
-    }
-
-    /**
-     * Filtra apenas sessões futuras e dentro do horário de funcionamento
+     * Filtra apenas sessões futuras (sem validação de horário específico)
      */
     static filterAvailableSessions(sessions: Session[]): Session[] {
         const now = new Date();
@@ -25,10 +14,9 @@ export class CinemaValidationService {
         return sessions.filter(session => {
             const sessionDate = new Date(session.datetime);
             const isFuture = sessionDate > now;
-            const isValidTime = this.isValidSessionTime(session.datetime);
 
-            // Retorna apenas sessões futuras e dentro do horário de funcionamento
-            return isFuture && isValidTime;
+            // Retorna apenas sessões futuras
+            return isFuture;
         });
     }
 
@@ -174,11 +162,6 @@ export class CinemaValidationService {
         filmDuration: number
     ): { isValid: boolean; errors: string[] } {
         const errors: string[] = [];
-
-        // Validar horário de funcionamento
-        if (!this.isValidSessionTime(sessionData.datetime)) {
-            errors.push('Sessão fora do horário de funcionamento (13h - 21h)');
-        }
 
         // Validar se é futura
         const sessionDate = new Date(sessionData.datetime);

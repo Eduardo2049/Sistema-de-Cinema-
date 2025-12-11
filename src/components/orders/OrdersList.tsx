@@ -1,13 +1,14 @@
-import { Card, Table, Badge, Button, Alert } from 'react-bootstrap';
+import { Card, Table, Badge, Button, Alert, Dropdown } from 'react-bootstrap';
 import { Order } from '../../types';
 import { OrderService } from '../../services/order.service';
 
 interface OrdersListProps {
     orders: Order[];
     onRefresh?: () => void;
+    onUpdateStatus?: (orderId: string, newStatus: string) => void;
 }
 
-export const OrdersList = ({ orders, onRefresh }: OrdersListProps) => {
+export const OrdersList = ({ orders, onRefresh, onUpdateStatus }: OrdersListProps) => {
     const getStatusBadge = (status: string) => {
         const variants: Record<string, string> = {
             pendente: 'warning',
@@ -60,6 +61,7 @@ export const OrdersList = ({ orders, onRefresh }: OrdersListProps) => {
                             <th>Pagamento</th>
                             <th>Status</th>
                             <th>Data</th>
+                            <th>Ações</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -141,6 +143,37 @@ export const OrdersList = ({ orders, onRefresh }: OrdersListProps) => {
                                         hour: '2-digit',
                                         minute: '2-digit'
                                     })}
+                                </td>
+                                <td>
+                                    {onUpdateStatus && order.id && (
+                                        <Dropdown>
+                                            <Dropdown.Toggle variant="outline-secondary" size="sm" id={`dropdown-${order.id}`}>
+                                                ⚙️
+                                            </Dropdown.Toggle>
+                                            <Dropdown.Menu>
+                                                <Dropdown.Item 
+                                                    onClick={() => onUpdateStatus(order.id!, 'pendente')}
+                                                    disabled={order.status === 'pendente'}
+                                                >
+                                                    ⏳ Marcar como Pendente
+                                                </Dropdown.Item>
+                                                <Dropdown.Item 
+                                                    onClick={() => onUpdateStatus(order.id!, 'confirmado')}
+                                                    disabled={order.status === 'confirmado'}
+                                                >
+                                                    ✅ Confirmar Pedido
+                                                </Dropdown.Item>
+                                                <Dropdown.Divider />
+                                                <Dropdown.Item 
+                                                    onClick={() => onUpdateStatus(order.id!, 'cancelado')}
+                                                    disabled={order.status === 'cancelado'}
+                                                    className="text-danger"
+                                                >
+                                                    ❌ Cancelar Pedido
+                                                </Dropdown.Item>
+                                            </Dropdown.Menu>
+                                        </Dropdown>
+                                    )}
                                 </td>
                             </tr>
                         ))}

@@ -1,4 +1,4 @@
-import { useState, FormEvent } from 'react';
+import { useState, FormEvent, useEffect } from 'react';
 import { Form, Button, Row, Col, Card, Alert } from 'react-bootstrap';
 import { Session, Film, Room } from '../../types';
 
@@ -6,9 +6,11 @@ interface SessionFormProps {
     onSubmit: (session: Session) => void;
     films: Film[];
     rooms: Room[];
+    editingSession?: Session | null;
+    onCancelEdit?: () => void;
 }
 
-export const SessionForm = ({ onSubmit, films, rooms }: SessionFormProps) => {
+export const SessionForm = ({ onSubmit, films, rooms, editingSession, onCancelEdit }: SessionFormProps) => {
     const [formData, setFormData] = useState({
         movieId: '',
         roomId: '',
@@ -19,6 +21,19 @@ export const SessionForm = ({ onSubmit, films, rooms }: SessionFormProps) => {
     });
 
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+    useEffect(() => {
+        if (editingSession) {
+            setFormData({
+                movieId: editingSession.movieId,
+                roomId: editingSession.roomId,
+                datetime: editingSession.datetime,
+                price: editingSession.price,
+                language: editingSession.language,
+                format: editingSession.format
+            });
+        }
+    }, [editingSession]);
 
     const handleSubmit = (e: FormEvent) => {
         e.preventDefault();
@@ -38,26 +53,13 @@ export const SessionForm = ({ onSubmit, films, rooms }: SessionFormProps) => {
             return;
         }
 
-        // Validar se a sessão é após a data de lançamento do filme (APENAS AVISO)
+        // Validar se a sessão não é anterior à data atual
         const sessionDate = new Date(formData.datetime);
-        const releaseDate = new Date(selectedFilm.releaseDate);
+        const now = new Date();
 
-        if (sessionDate < releaseDate) {
-            const releaseDateFormatted = releaseDate.toLocaleDateString('pt-BR');
-            const sessionDateFormatted = sessionDate.toLocaleDateString('pt-BR');
-            
-            // Apenas alertar, mas permitir continuar
-            const continuar = window.confirm(
-                `⚠️ AVISO: Sessão antes do lançamento!\n\n` +
-                `Filme: ${selectedFilm.title}\n` +
-                `Lançamento: ${releaseDateFormatted}\n` +
-                `Sessão: ${sessionDateFormatted}\n\n` +
-                `Deseja continuar mesmo assim? (útil para testes)`
-            );
-            
-            if (!continuar) {
-                return;
-            }
+        if (sessionDate <= now) {
+            setErrorMessage('A sessão não pode ser agendada para uma data/hora no passado.');
+            return;
         }
 
         const movieTitle = selectedFilm.title;
@@ -77,6 +79,19 @@ export const SessionForm = ({ onSubmit, films, rooms }: SessionFormProps) => {
         onSubmit(session);
 
         // Reset form
+        if (!editingSession) {
+            setFormData({
+                movieId: '',
+                roomId: '',
+                datetime: '',
+                price: 0,
+                language: '',
+                format: ''
+            });
+        }
+    };
+
+    const handleCancel = () => {
         setFormData({
             movieId: '',
             roomId: '',
@@ -85,12 +100,16 @@ export const SessionForm = ({ onSubmit, films, rooms }: SessionFormProps) => {
             language: '',
             format: ''
         });
+        setErrorMessage(null);
+        if (onCancelEdit) {
+            onCancelEdit();
+        }
     };
 
     return (
         <Card className="mb-4">
             <Card.Body>
-                <Card.Title>Adicionar Nova Sessão</Card.Title>
+                <Card.Title>{editingSession ? '✏️ Editar Sessão' : '➕ Adicionar Nova Sessão'}</Card.Title>
 
                 {errorMessage && (
                     <Alert variant="danger" dismissible onClose={() => setErrorMessage(null)} className="mt-3">
@@ -147,7 +166,7 @@ export const SessionForm = ({ onSubmit, films, rooms }: SessionFormProps) => {
                                     required
                                 />
                                 <Form.Text className="text-muted">
-                                    💡 Para aparecer disponível (🟣): deve ser <strong>futura</strong> e entre <strong>13h-21h</strong>
+                                    💡 A sessão deve ser agendada para uma <strong>data/hora futura</strong>
                                 </Form.Text>
                             </Form.Group>
                         </Col>
@@ -200,11 +219,18 @@ export const SessionForm = ({ onSubmit, films, rooms }: SessionFormProps) => {
                             </Form.Group>
                         </Col>
 
-                        <Col md={12}>
-                            <Button type="submit" variant="success" className="w-100">
-                                Salvar Sessão
+                        <Col md={editingSession ? 6 : 12}>
+                            <Button type="submit" variant={editingSession ? "warning" : "success"} className="w-100">
+                                {editingSession ? '✏️ Atualizar Sessão' : '💾 Salvar Sessão'}
                             </Button>
                         </Col>
+                        {editingSession && (
+                            <Col md={6}>
+                                <Button type="button" variant="secondary" className="w-100" onClick={handleCancel}>
+                                    ❌ Cancelar
+                                </Button>
+                            </Col>
+                        )}
                     </Row>
                 </Form>
             </Card.Body>

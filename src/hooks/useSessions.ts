@@ -64,6 +64,32 @@ export const useSessions = () => {
         setLoading(false);
     };
 
+    const updateSession = async (id: string, session: Partial<Session>) => {
+        setLoading(true);
+        setError(null);
+
+        // Converter camelCase para snake_case
+        const sessionData: any = {};
+        
+        if (session.movieId) sessionData.film_id = session.movieId;
+        if (session.roomId) sessionData.room_id = session.roomId;
+        if (session.datetime) sessionData.datetime = session.datetime;
+        if (session.price !== undefined) sessionData.price = session.price;
+        if (session.language) sessionData.language = session.language;
+        if (session.format) sessionData.format = session.format;
+
+        const { error: updateError } = await SupabaseService.update('sessions', id, sessionData);
+
+        if (updateError) {
+            setError('Erro ao atualizar sessão: ' + updateError.message);
+            console.error(updateError);
+        } else {
+            await loadSessions();
+        }
+
+        setLoading(false);
+    };
+
     const removeSession = async (id: string) => {
         setLoading(true);
         setError(null);
@@ -85,6 +111,7 @@ export const useSessions = () => {
         loading,
         error,
         addSession,
+        updateSession,
         removeSession,
         refreshSessions: loadSessions
     };

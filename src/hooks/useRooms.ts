@@ -70,6 +70,36 @@ export const useRooms = () => {
         setLoading(false);
     };
 
+    const updateRoom = async (id: string, room: Partial<Room>) => {
+        setLoading(true);
+        setError(null);
+
+        // Converter seatLayout para snake_case (seat_layout) para o banco
+        const roomData: any = {
+            name: room.name,
+            type: room.type,
+            capacity: room.capacity,
+            seat_layout: room.seatLayout ? {
+                rows: room.seatLayout.rows,
+                columns: room.seatLayout.columns,
+                disabledSeats: room.seatLayout.disabledSeats || []
+            } : null
+        };
+
+        const { error: updateError } = await SupabaseService.update('rooms', id, roomData);
+
+        if (updateError) {
+            setError('Erro ao atualizar sala: ' + updateError.message);
+            console.error('Erro detalhado:', updateError);
+            alert('Erro ao atualizar sala: ' + updateError.message);
+        } else {
+            alert('✅ Sala atualizada com sucesso!');
+            await loadRooms();
+        }
+
+        setLoading(false);
+    };
+
     const removeRoom = async (id: string) => {
         setLoading(true);
         setError(null);
@@ -91,6 +121,7 @@ export const useRooms = () => {
         loading,
         error,
         addRoom,
+        updateRoom,
         removeRoom,
         refreshRooms: loadRooms
     };

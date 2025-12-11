@@ -5,9 +5,10 @@ import { Session } from '../../types';
 interface SessionListProps {
     sessions: Session[];
     onRemove: (id: string) => void;
+    onEdit?: (session: Session) => void;
 }
 
-export const SessionList = ({ sessions, onRemove }: SessionListProps) => {
+export const SessionList = ({ sessions, onRemove, onEdit }: SessionListProps) => {
     if (sessions.length === 0) {
         return (
             <Card>
@@ -49,14 +50,23 @@ export const SessionList = ({ sessions, onRemove }: SessionListProps) => {
                                 </div>
                                 <div className="d-flex flex-column gap-1 ms-2">
                                     <Link to={`/vendas?sessao=${session.id}`} className="btn btn-sm btn-primary">
-                                        Comprar Ingresso
+                                        🎫 Comprar Ingresso
                                     </Link>
+                                    {onEdit && session.id && (
+                                        <Button
+                                            variant="warning"
+                                            size="sm"
+                                            onClick={() => onEdit(session)}
+                                        >
+                                            ✏️ Editar
+                                        </Button>
+                                    )}
                                     <Button
                                         variant="danger"
                                         size="sm"
                                         onClick={() => handleRemove(session.id)}
                                     >
-                                        Remover
+                                        🗑️ Remover
                                     </Button>
                                 </div>
                             </div>

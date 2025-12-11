@@ -1,9 +1,11 @@
-import { useState, FormEvent } from 'react';
+import { useState, FormEvent, useEffect } from 'react';
 import { Form, Button, Row, Col, Card, Alert } from 'react-bootstrap';
 import { Room } from '../../types';
 
 interface RoomFormProps {
     onSubmit: (room: Room) => void;
+    editingRoom?: Room | null;
+    onCancelEdit?: () => void;
 }
 
 // Função para gerar layout de assentos automaticamente
@@ -20,7 +22,7 @@ const generateSeatLayout = (capacity: number) => {
     };
 };
 
-export const RoomForm = ({ onSubmit }: RoomFormProps) => {
+export const RoomForm = ({ onSubmit, editingRoom, onCancelEdit }: RoomFormProps) => {
     const [formData, setFormData] = useState<Room>({
         name: '',
         type: '',
@@ -28,6 +30,13 @@ export const RoomForm = ({ onSubmit }: RoomFormProps) => {
     });
 
     const [generateLayout, setGenerateLayout] = useState(true);
+
+    useEffect(() => {
+        if (editingRoom) {
+            setFormData(editingRoom);
+            setGenerateLayout(false); // Não gerar novo layout ao editar
+        }
+    }, [editingRoom]);
 
     const handleSubmit = (e: FormEvent) => {
         e.preventDefault();
@@ -40,24 +49,38 @@ export const RoomForm = ({ onSubmit }: RoomFormProps) => {
         // Gerar layout de assentos se a opção estiver marcada
         const roomData: Room = {
             ...formData,
-            seatLayout: generateLayout ? generateSeatLayout(formData.capacity) : undefined
+            seatLayout: generateLayout ? generateSeatLayout(formData.capacity) : formData.seatLayout
         };
 
         onSubmit(roomData);
 
         // Reset form
+        if (!editingRoom) {
+            setFormData({
+                name: '',
+                type: '',
+                capacity: 0
+            });
+            setGenerateLayout(true);
+        }
+    };
+
+    const handleCancel = () => {
         setFormData({
             name: '',
             type: '',
             capacity: 0
         });
         setGenerateLayout(true);
+        if (onCancelEdit) {
+            onCancelEdit();
+        }
     };
 
     return (
         <Card className="mb-4">
             <Card.Body>
-                <Card.Title>Adicionar Nova Sala</Card.Title>
+                <Card.Title>{editingRoom ? '✏️ Editar Sala' : '➕ Adicionar Nova Sala'}</Card.Title>
                 <Form onSubmit={handleSubmit}>
                     <Row className="g-3">
                         <Col md={4}>
@@ -199,11 +222,18 @@ export const RoomForm = ({ onSubmit }: RoomFormProps) => {
                             </Col>
                         )}
 
-                        <Col md={12}>
-                            <Button type="submit" variant="success" className="w-100">
-                                💾 Salvar Sala
+                        <Col md={editingRoom ? 6 : 12}>
+                            <Button type="submit" variant={editingRoom ? "warning" : "success"} className="w-100">
+                                {editingRoom ? '✏️ Atualizar Sala' : '💾 Salvar Sala'}
                             </Button>
                         </Col>
+                        {editingRoom && (
+                            <Col md={6}>
+                                <Button type="button" variant="secondary" className="w-100" onClick={handleCancel}>
+                                    ❌ Cancelar
+                                </Button>
+                            </Col>
+                        )}
                     </Row>
                 </Form>
             </Card.Body>

@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Container, Row, Col } from 'react-bootstrap';
 import { SessionForm } from '../components/sessions/SessionForm';
 import { SessionList } from '../components/sessions/SessionList';
@@ -7,13 +8,29 @@ import { useRooms } from '../hooks/useRooms';
 import { Session } from '../types';
 
 export const SessionsPage = () => {
-    const { sessions, addSession, removeSession } = useSessions();
+    const { sessions, addSession, updateSession, removeSession } = useSessions();
     const { films } = useFilms();
     const { rooms } = useRooms();
+    const [editingSession, setEditingSession] = useState<Session | null>(null);
 
-    const handleAddSession = (session: Session) => {
-        addSession(session);
-        alert('Sessão cadastrada com sucesso!');
+    const handleAddOrUpdateSession = (session: Session) => {
+        if (editingSession && editingSession.id) {
+            updateSession(editingSession.id, session);
+            alert('Sessão atualizada com sucesso!');
+            setEditingSession(null);
+        } else {
+            addSession(session);
+            alert('Sessão cadastrada com sucesso!');
+        }
+    };
+
+    const handleEditSession = (session: Session) => {
+        setEditingSession(session);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    const handleCancelEdit = () => {
+        setEditingSession(null);
     };
 
     return (
@@ -21,8 +38,18 @@ export const SessionsPage = () => {
             <Row>
                 <Col lg={10} className="offset-lg-1">
                     <h1 className="mb-4">⏰ Sessões</h1>
-                    <SessionForm onSubmit={handleAddSession} films={films} rooms={rooms} />
-                    <SessionList sessions={sessions} onRemove={removeSession} />
+                    <SessionForm 
+                        onSubmit={handleAddOrUpdateSession} 
+                        films={films} 
+                        rooms={rooms}
+                        editingSession={editingSession}
+                        onCancelEdit={handleCancelEdit}
+                    />
+                    <SessionList 
+                        sessions={sessions} 
+                        onRemove={removeSession}
+                        onEdit={handleEditSession}
+                    />
                 </Col>
             </Row>
         </Container>
