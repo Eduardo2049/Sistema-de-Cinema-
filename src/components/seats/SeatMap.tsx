@@ -79,7 +79,7 @@ export const SeatMap = ({
     return (
         <Container className="seat-map">
             <Alert variant="info" className="mb-4">
-                <strong>ℹ️ Como funciona:</strong> Selecione a fileira e a coluna da poltrona desejada e clique em "Adicionar".
+                <strong>Como funciona:</strong> Selecione a fileira e a coluna da poltrona desejada e clique em "Adicionar".
             </Alert>
 
             <Row className="mb-4">
