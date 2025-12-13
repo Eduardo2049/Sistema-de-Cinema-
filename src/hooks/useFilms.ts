@@ -55,6 +55,29 @@ export const useFilms = () => {
         setLoading(false);
     };
 
+    const updateFilm = async (id: string, film: Partial<Film>) => {
+        setLoading(true);
+        setError(null);
+
+        // Converter releaseDate (camelCase) para release_date (snake_case)
+        const filmData: any = { ...film };
+        if (film.releaseDate) {
+            filmData.release_date = film.releaseDate;
+            delete filmData.releaseDate;
+        }
+
+        const { error: updateError } = await SupabaseService.update('films', id, filmData);
+
+        if (updateError) {
+            setError('Erro ao atualizar filme: ' + updateError.message);
+            console.error(updateError);
+        } else {
+            await loadFilms(); // Recarregar lista
+        }
+
+        setLoading(false);
+    };
+
     const removeFilm = async (id: string) => {
         setLoading(true);
         setError(null);
@@ -76,6 +99,7 @@ export const useFilms = () => {
         loading,
         error,
         addFilm,
+        updateFilm,
         removeFilm,
         refreshFilms: loadFilms
     };

@@ -4,9 +4,10 @@ import { Room } from '../../types';
 interface RoomListProps {
     rooms: Room[];
     onRemove: (id: string) => void;
+    onEdit?: (room: Room) => void;
 }
 
-export const RoomList = ({ rooms, onRemove }: RoomListProps) => {
+export const RoomList = ({ rooms, onRemove, onEdit }: RoomListProps) => {
     if (rooms.length === 0) {
         return (
             <Card>
@@ -43,14 +44,24 @@ export const RoomList = ({ rooms, onRemove }: RoomListProps) => {
                                         <Badge bg="success">Capacidade: {room.capacity} lugares</Badge>
                                     </div>
                                 </div>
-                                <Button
-                                    variant="danger"
-                                    size="sm"
-                                    className="ms-2"
-                                    onClick={() => handleRemove(room.id, room.name)}
-                                >
-                                    Remover
-                                </Button>
+                                <div className="d-flex flex-column gap-1 ms-2">
+                                    {onEdit && room.id && (
+                                        <Button
+                                            variant="warning"
+                                            size="sm"
+                                            onClick={() => onEdit(room)}
+                                        >
+                                            ✏️ Editar
+                                        </Button>
+                                    )}
+                                    <Button
+                                        variant="danger"
+                                        size="sm"
+                                        onClick={() => handleRemove(room.id, room.name)}
+                                    >
+                                        🗑️ Remover
+                                    </Button>
+                                </div>
                             </div>
                         </ListGroup.Item>
                     ))}

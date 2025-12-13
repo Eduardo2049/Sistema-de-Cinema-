@@ -4,9 +4,10 @@ import { Film } from '../../types';
 interface FilmListProps {
     films: Film[];
     onRemove: (id: string) => void;
+    onEdit?: (film: Film) => void;
 }
 
-export const FilmList = ({ films, onRemove }: FilmListProps) => {
+export const FilmList = ({ films, onRemove, onEdit }: FilmListProps) => {
     if (films.length === 0) {
         return (
             <Card>
@@ -43,14 +44,24 @@ export const FilmList = ({ films, onRemove }: FilmListProps) => {
                                     </div>
                                 </div>
                                 {film.id && (
-                                    <Button
-                                        variant="danger"
-                                        size="sm"
-                                        className="ms-2"
-                                        onClick={() => handleRemove(film.id!, film.title)}
-                                    >
-                                        Remover
-                                    </Button>
+                                    <div className="d-flex flex-column gap-1 ms-2">
+                                        {onEdit && (
+                                            <Button
+                                                variant="warning"
+                                                size="sm"
+                                                onClick={() => onEdit(film)}
+                                            >
+                                                ✏️ Editar
+                                            </Button>
+                                        )}
+                                        <Button
+                                            variant="danger"
+                                            size="sm"
+                                            onClick={() => handleRemove(film.id!, film.title)}
+                                        >
+                                            🗑️ Remover
+                                        </Button>
+                                    </div>
                                 )}
                             </div>
                         </ListGroup.Item>

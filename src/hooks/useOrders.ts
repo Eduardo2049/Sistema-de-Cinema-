@@ -56,12 +56,28 @@ export const useOrders = () => {
         }
     };
 
+    const updateOrderStatus = async (id: string, newStatus: 'pendente' | 'confirmado' | 'cancelado') => {
+        setLoading(true);
+        setError(null);
+
+        try {
+            await OrderService.updateStatus(id, newStatus);
+            await loadOrders();
+        } catch (err: any) {
+            setError('Erro ao atualizar status do pedido: ' + err.message);
+            console.error(err);
+        } finally {
+            setLoading(false);
+        }
+    };
+
     return {
         orders,
         loading,
         error,
         confirmOrder,
         cancelOrder,
+        updateOrderStatus,
         refreshOrders: loadOrders
     };
 };
