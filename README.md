@@ -143,7 +143,7 @@ npm install
 npm run dev
 ```
 
-> **Observação:** o projeto Supabase original foi pausado por tempo prolongado e não é possível acessar os dados online atualmente. A aplicação continuará funcionando em modo local com os dados mock ou conectando-se a outro banco PostgreSQL quando você tiver um substituto disponível.
+- **Observação:** O projeto Supabase original foi pausado por tempo prolongado e os dados online não estão acessíveis no momento. A aplicação continua funcional localmente usando dados mock ou apontando para qualquer PostgreSQL/Supabase alternativo configurado.
 
 ---
 
