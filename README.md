@@ -123,7 +123,6 @@ cinemas
 ### Pré-requisitos
 
 - [Node.js](https://nodejs.org/) >= 18
-- Conta gratuita no [Supabase](https://supabase.com/)
 
 ### 1. Clonar o repositório
 
@@ -138,37 +137,13 @@ cd CinemaControl
 npm install
 ```
 
-### 3. Configurar variáveis de ambiente
-
-```bash
-# Copie o arquivo de exemplo
-cp .env.example .env
-```
-
-Edite o `.env` com suas credenciais do Supabase:
-
-```env
-VITE_SUPABASE_URL=https://seu-projeto.supabase.co
-VITE_SUPABASE_ANON_KEY=sua-chave-anonima-aqui
-```
-
-> **Como obter as credenciais:**
-> 1. Acesse [app.supabase.com](https://app.supabase.com) e abra seu projeto
-> 2. Vá em **Settings → API**
-> 3. Copie **Project URL** → `VITE_SUPABASE_URL`
-> 4. Copie **anon public key** → `VITE_SUPABASE_ANON_KEY`
-
-### 4. Configurar o banco de dados
-
-No **Supabase Dashboard → SQL Editor**, clique em **New Query**, cole o conteúdo de [`supabase-schema.sql`](./supabase-schema.sql) e clique em **Run**.
-
-### 5. Iniciar o servidor
+### 3. Rodar o projeto
 
 ```bash
 npm run dev
 ```
 
-Acesse em `http://localhost:5173` 🎉
+> **Observação:** o projeto Supabase original foi pausado por tempo prolongado e não é possível acessar os dados online atualmente. A aplicação continuará funcionando em modo local com os dados mock ou conectando-se a outro banco PostgreSQL quando você tiver um substituto disponível.
 
 ---
 
@@ -184,25 +159,9 @@ Acesse em `http://localhost:5173` 🎉
 
 ---
 
-## 🌐 Deploy na Vercel
+## 🌐 Histórico de Deploy
 
-O projeto possui deploy automatizado via [Vercel](https://vercel.com/). A cada push na branch `main`, um novo deploy é gerado automaticamente.
-
-### Configuração das variáveis de ambiente na Vercel
-
-1. Acesse o projeto em [vercel.com/dashboard](https://vercel.com/dashboard)
-2. Vá em **Settings → Environment Variables**
-3. Adicione as seguintes variáveis:
-
-| Variável | Valor |
-|---|---|
-| `VITE_SUPABASE_URL` | URL do seu projeto Supabase |
-| `VITE_SUPABASE_ANON_KEY` | Chave anônima pública do Supabase |
-
-4. Selecione os ambientes: **Production**, **Preview** e **Development**
-5. Clique em **Save** e faça um novo deploy
-
-> O arquivo [`vercel.json`](./vercel.json) já está configurado com `buildCommand`, `outputDirectory` e rewrites para roteamento SPA correto.
+O deploy anterior estava hospedado na Vercel em https://systemcinemapr.vercel.app, mas o Supabase que sustentava os dados foi pausado. Para retomar os deploys, primeiro restaure os dados em outro projeto Supabase ou PostgreSQL e depois atualize as variáveis de ambiente na Vercel (ou outra plataforma) para apontar para o novo endpoint.
 
 ---
 
