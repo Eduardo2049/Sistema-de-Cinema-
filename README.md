@@ -11,7 +11,7 @@
 [![Bootstrap](https://img.shields.io/badge/Bootstrap-5.3-7952B3?style=for-the-badge&logo=bootstrap&logoColor=white)](https://getbootstrap.com/)
 [![License](https://img.shields.io/badge/License-ISC-green?style=for-the-badge)](./LICENSE)
 
-**[🌐 Ver Demo ao Vivo](https://systemcinemapr.vercel.app)** · **[📖 Setup do Supabase](./SUPABASE-SETUP.md)** · **[🐛 Reportar Bug](https://github.com/Eduardo2049/Sistema-de-Cinema-/issues)**
+**[🌐 Ver Demo ao Vivo](https://systemcinemapr.vercel.app)** · **[📖 Setup do Supabase](./SUPABASE-SETUP.md)** · **[🐛 Reportar Bug](https://github.com/Eduardo2049/CinemaControl/issues)**
 
 </div>
 
@@ -128,8 +128,8 @@ cinemas
 ### 1. Clonar o repositório
 
 ```bash
-git clone https://github.com/Eduardo2049/Sistema-de-Cinema-.git
-cd Sistema-de-Cinema-
+git clone https://github.com/Eduardo2049/CinemaControl.git
+cd CinemaControl
 ```
 
 ### 2. Instalar dependências
@@ -224,5 +224,5 @@ Este projeto está sob a licença **ISC**. Veja o arquivo [LICENSE](./LICENSE) p
 ---
 
 <div align="center">
-  Desenvolvido por <a href="https://github.com/Eduardo2049">Eduardo2049</a> · Disciplina de Tecnologia de Construção de Software
+  Desenvolvido por <a href="https://github.com/Eduardo2049">Eduardo2049</a> &nbsp;·&nbsp; Disciplina de Tecnologia de Construção de Software &nbsp;·&nbsp; <a href="https://github.com/Eduardo2049/CinemaControl">github.com/Eduardo2049/CinemaControl</a>
 </div>
